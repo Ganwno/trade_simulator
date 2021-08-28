@@ -13,7 +13,7 @@ class Api::SessionsController < ApplicationController
         # sign in the user
             puts "\nWelcome back #{user.username}\n"
             login!(user)
-            redirect_to api_user_url(user)
+            render partial: 'api/users/user', locals: {user: current_user}
         end
     end
 

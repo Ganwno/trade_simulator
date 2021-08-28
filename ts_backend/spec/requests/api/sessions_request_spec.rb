@@ -10,9 +10,9 @@ RSpec.describe "Api::Sessions", type: :request do
 
         # log user in
         post '/api/session', params: {user: user_params}
-        expect(response.content_type).to eq('text/html')
-        expect(response).to have_http_status(302)
-        expect(response).to redirect_to(api_user_url(User.last))
+        expect(response.content_type).to eq('application/json')
+        expect(response).to have_http_status(200)
+        expect(response).to render_template(:partial => 'api/users/_user')
     end
     
     it 'returns error message when username not found' do
