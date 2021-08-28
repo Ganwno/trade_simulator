@@ -12,10 +12,16 @@ def self.find_by_credentials(username, password)
     user = User.find_by(username: username)
 
     # if username not found
-    return nil if user.nil?
+    if user.nil?
+        return {username: ["not found"]}
+    end
 
-    # else check password
-    user.is_password?(password) ? user : nil
+    # if password does not match
+    if !user.is_password?(password)
+        return {password: ["does not match"]}
+    end
+
+    return user
 end
 
 

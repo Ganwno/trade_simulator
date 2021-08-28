@@ -5,14 +5,15 @@ class Api::SessionsController < ApplicationController
         params[:user][:username],
         params[:user][:password]
         )
-        if user.nil?
+        if !user.is_a?(User)
         # either username not found or password incorrect
-            render :new
+        # return value is a Hash in the format of user.errors.messages
+            render json: user
         else
         # sign in the user
             puts "\nWelcome back #{user.username}\n"
             login!(user)
-            redirect_to user_url(user)
+            redirect_to api_user_url(user)
         end
     end
 
@@ -22,7 +23,7 @@ class Api::SessionsController < ApplicationController
         if current_user.nil?
             # if there is no user to logout
             # render a 404 message
-            render json: {404}
+            render json: {status: 404}
         else
             # If there is a current user
             # render an empty {} upon successful logout

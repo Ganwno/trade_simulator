@@ -5,11 +5,19 @@ class Api::UsersController < ApplicationController
     def create
         @user = User.new(user_params)
 
-        if @user.save
+        begin
+            user_saved_successfully = @user.save
+        rescue ActiveRecord::RecordNotUnique
+            # add duplicate username message to username errors list
+            user_saved_successfully = false
+            @user.errors.messages[:username].append("already exists")
+        end
+
+        if user_saved_successfully
             login!(@user)
             render :show
         else
-            render json: @user.errors.full_messages
+            render json: @user.errors.messages
         end
     end
 
