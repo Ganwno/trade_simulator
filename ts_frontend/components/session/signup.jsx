@@ -8,7 +8,7 @@ class Signup extends React.Component {
         this.state = {
             username: '',
             password: '',
-            isLoggedIn: false
+            successfulLogin: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -26,16 +26,32 @@ class Signup extends React.Component {
         // override default action from the form
         e.preventDefault;
 
-        this.props.createNewUser(this.state)
-            .then( // redirect to page after login
-                    this.setState({ isLoggedIn: true })
-                );
+        this.props.createNewUser({
+            username: this.state.username,
+            password: this.state.password
+            }
+        ).then( () => {
+            const errors = this.props.errors;
+            console.log(errors);
+
+            const successfulLogin = Object.keys(errors).length == 0;
+            if (successfulLogin) {
+                // redirect to page after login
+                this.setState({ successfulLogin: true });
+            }
+            else {
+                // handle errors
+                Object.keys(errors).forEach(k => errors[k].forEach(v => console.log(k + " " + v)));
+            }
+
+            }
+            );
     }
 
 
     render() {
         
-        if (this.state.isLoggedIn){
+        if (this.state.successfulLogin){
             return <Redirect to="/homepage" />
         }
 

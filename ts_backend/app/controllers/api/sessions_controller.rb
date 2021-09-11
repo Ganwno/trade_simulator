@@ -8,7 +8,7 @@ class Api::SessionsController < ApplicationController
         if !user.is_a?(User)
         # either username not found or password incorrect
         # return value is a Hash in the format of user.errors.messages
-            render json: user
+            render json: {user: nil, errors: user}
         else
         # sign in the user
             puts "\nWelcome back #{user.username}\n"

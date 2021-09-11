@@ -21,17 +21,17 @@ __webpack_require__.r(__webpack_exports__);
 const RECEIVE_CURRENT_USER = "RECEIVE_CURRENT_USER";
 const LOGOUT_CURRENT_USER = "LOGOUT_CURRENT_USER";
 
-const receiveCurrentUser = user => ({
+const receiveCurrentUser = response => ({
   type: RECEIVE_CURRENT_USER,
-  user
+  response
 });
 
 const logoutCurrentUser = () => ({
   type: LOGOUT_CURRENT_USER
 });
 
-const createNewUser = formUser => dispatch => (0,_utils_session__WEBPACK_IMPORTED_MODULE_0__.postUser)(formUser).then(user => dispatch(receiveCurrentUser(user)));
-const loginUser = formUser => dispatch => (0,_utils_session__WEBPACK_IMPORTED_MODULE_0__.postSession)(formUser).then(user => dispatch(receiveCurrentUser(user)));
+const createNewUser = formUser => dispatch => (0,_utils_session__WEBPACK_IMPORTED_MODULE_0__.postUser)(formUser).then(response => dispatch(receiveCurrentUser(response)));
+const loginUser = formUser => dispatch => (0,_utils_session__WEBPACK_IMPORTED_MODULE_0__.postSession)(formUser).then(response => dispatch(receiveCurrentUser(response)));
 const logoutUser = () => dispatch => (0,_utils_session__WEBPACK_IMPORTED_MODULE_0__.deleteSession)().then(() => dispatch(logoutCurrentUser()));
 
 /***/ }),
@@ -148,7 +148,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router/esm/react-router.js");
+/* harmony import */ var _store_store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../store/store */ "./store/store.js");
+
 
 
 
@@ -158,7 +160,7 @@ class Login extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.state = {
       username: '',
       password: '',
-      isLoggedIn: false
+      successfulLogin: false
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -174,15 +176,29 @@ class Login extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   handleSubmit(e) {
     // override default action from the form
     e.preventDefault;
-    this.props.loginUser(this.state).then( // redirect to page after login
-    this.setState({
-      isLoggedIn: true
-    }));
+    this.props.loginUser({
+      username: this.state.username,
+      password: this.state.password
+    }).then(() => {
+      const errors = this.props.errors;
+      console.log(errors);
+      const successfulLogin = Object.keys(errors).length == 0;
+
+      if (successfulLogin) {
+        // redirect to page after login
+        this.setState({
+          successfulLogin: true
+        });
+      } else {
+        // handle errors
+        Object.keys(errors).forEach(k => errors[k].forEach(v => console.log(k + " " + v)));
+      }
+    });
   }
 
   render() {
-    if (this.state.isLoggedIn) {
-      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__.Redirect, {
+    if (this.state.successfulLogin) {
+      return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__.Redirect, {
         to: "/homepage"
       });
     }
@@ -226,11 +242,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const mapStateToProps = state => ({
+  errors: state.session.errors
+});
+
 const mapDispatchToProps = dispatch => ({
   loginUser: formUser => dispatch((0,_actions_session__WEBPACK_IMPORTED_MODULE_1__.loginUser)(formUser))
 });
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,react_redux__WEBPACK_IMPORTED_MODULE_0__.connect)(null, mapDispatchToProps)(_login__WEBPACK_IMPORTED_MODULE_2__.default));
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,react_redux__WEBPACK_IMPORTED_MODULE_0__.connect)(mapStateToProps, mapDispatchToProps)(_login__WEBPACK_IMPORTED_MODULE_2__.default));
 
 /***/ }),
 
@@ -324,7 +344,7 @@ class Signup extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.state = {
       username: '',
       password: '',
-      isLoggedIn: false
+      successfulLogin: false
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -340,14 +360,28 @@ class Signup extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   handleSubmit(e) {
     // override default action from the form
     e.preventDefault;
-    this.props.createNewUser(this.state).then( // redirect to page after login
-    this.setState({
-      isLoggedIn: true
-    }));
+    this.props.createNewUser({
+      username: this.state.username,
+      password: this.state.password
+    }).then(() => {
+      const errors = this.props.errors;
+      console.log(errors);
+      const successfulLogin = Object.keys(errors).length == 0;
+
+      if (successfulLogin) {
+        // redirect to page after login
+        this.setState({
+          successfulLogin: true
+        });
+      } else {
+        // handle errors
+        Object.keys(errors).forEach(k => errors[k].forEach(v => console.log(k + " " + v)));
+      }
+    });
   }
 
   render() {
-    if (this.state.isLoggedIn) {
+    if (this.state.successfulLogin) {
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__.Redirect, {
         to: "/homepage"
       });
@@ -393,11 +427,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const mapStateToProps = state => ({
+  errors: state.session.errors
+});
+
 const mapDispatchToProps = dispatch => ({
   createNewUser: formUser => dispatch((0,_actions_session__WEBPACK_IMPORTED_MODULE_1__.createNewUser)(formUser))
 });
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,react_redux__WEBPACK_IMPORTED_MODULE_0__.connect)(null, mapDispatchToProps)(_signup__WEBPACK_IMPORTED_MODULE_2__.default));
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,react_redux__WEBPACK_IMPORTED_MODULE_0__.connect)(mapStateToProps, mapDispatchToProps)(_signup__WEBPACK_IMPORTED_MODULE_2__.default));
 
 /***/ }),
 
@@ -468,7 +506,8 @@ __webpack_require__.r(__webpack_exports__);
  // default state
 
 const _nullSession = {
-  currentUser: null
+  currentUser: null,
+  errors: {}
 }; // session reducer
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((state = _nullSession, action) => {
@@ -477,7 +516,8 @@ const _nullSession = {
   switch (action.type) {
     case _actions_session__WEBPACK_IMPORTED_MODULE_0__.RECEIVE_CURRENT_USER:
       return Object.assign({}, {
-        currentUser: action.user
+        currentUser: action.response.user,
+        errors: action.response.errors
       });
 
     case _actions_session__WEBPACK_IMPORTED_MODULE_0__.LOGOUT_CURRENT_USER:

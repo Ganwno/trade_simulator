@@ -19,7 +19,8 @@ RSpec.describe "Api::Sessions", type: :request do
         post '/api/session', params: {user: {username: 'test_user', password: 'test_password'}}
         expect(response.content_type).to eq('application/json')
         expect(response).to have_http_status(200)
-        expect(response.body).to eq({:username => ["not found"]}.to_json)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['errors']).to eq({'username' => ['not found']})
     end
 
     it 'returns error message when password does not match' do
@@ -29,7 +30,8 @@ RSpec.describe "Api::Sessions", type: :request do
         post '/api/session', params: {user: {username: 'test_user', password: 'wrong_password'}}
         expect(response.content_type).to eq('application/json')
         expect(response).to have_http_status(200)
-        expect(response.body).to eq({:password => ["does not match"]}.to_json)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response['errors']).to eq({'password' => ['does not match']})
     end
 
 end

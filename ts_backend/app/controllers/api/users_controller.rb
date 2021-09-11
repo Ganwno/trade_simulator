@@ -17,7 +17,7 @@ class Api::UsersController < ApplicationController
             login!(@user)
             render :show
         else
-            render json: @user.errors.messages
+            render json: {user: nil, errors: @user.errors.messages}
         end
     end
 
