@@ -20,4 +20,4 @@ export const loginUser = formUser => dispatch => postSession(formUser)
     .then(user => dispatch(receiveCurrentUser(user)));
 
 export const logoutUser = () => dispatch => deleteSession()
-    .then(() => dispatch(logoutCurrentUser));
+    .then(() => dispatch(logoutCurrentUser()));

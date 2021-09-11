@@ -1,4 +1,5 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 
 class Signup extends React.Component {
 
@@ -6,7 +7,8 @@ class Signup extends React.Component {
         super(props)
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            isLoggedIn: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -26,12 +28,17 @@ class Signup extends React.Component {
 
         this.props.createNewUser(this.state)
             .then( // redirect to page after login
+                    this.setState({ isLoggedIn: true })
                 );
     }
 
 
     render() {
         
+        if (this.state.isLoggedIn){
+            return <Redirect to="/homepage" />
+        }
+
         return (
             <div className="signup-form">
                 <h2>Sign Up</h2>
