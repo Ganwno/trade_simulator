@@ -3,7 +3,6 @@ require 'distribution'
 
 class TickData
     @@finnhub_api_key = 'c50k1baad3ic9bdla5u0'
-    @@normal_generator = Distribution::Normal.rng(0, 1, 0)
 
     attr_reader :tickers, :start_time, :end_time, :tick_data
 
@@ -40,7 +39,7 @@ class TickData
         # format as array of ticks
         tick_data = Hash.new()
         @tickers.each do |ticker|
-            tick_data = generate_ticks(tick_data, raw_tick_data[ticker], @start_time, @end_time)
+            tick_data = generate_ticks(tick_data, raw_tick_data[ticker], @start_time, @end_time, ticker)
         end
         @tick_data = tick_data
     end
@@ -88,7 +87,7 @@ class TickData
 
     # public instance methods
 
-    def generate_ticks(generated_ticks, raw_tick_data, start_time, end_time)
+    def generate_ticks(generated_ticks, raw_tick_data, start_time, end_time, ticker)
         # get number of ticks
         one_over_60 = 1 / 60.0
         num_minutes = (end_time - start_time) / 60
@@ -108,7 +107,14 @@ class TickData
                 low_i   = raw_tick_data[minute_start][:l]
                 close_i = raw_tick_data[minute_start][:c]
 
-                z = 60.times.map { @@normal_generator.call }
+                # use a uniquely seeded random number generator for each ticker and minute
+                # to ensure that samples are deterministic
+                # encode the ticker as an integer and append it to the minute
+                seed = 0
+                ticker.bytes.each_with_index { |x, i| seed += x * 100**i }
+                seed += (minute_start / 10) * 100**(ticker.length)
+                normal_generator = Distribution::Normal.rng(0, 1, seed)
+                z = 60.times.map { normal_generator.call }
                 sum_zn = z.inject { |x, s| s += x }
                 running_sum_zn = 0
 
