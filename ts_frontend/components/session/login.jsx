@@ -7,6 +7,7 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
+import '../../styles/user_auth/signup.css';
 
 class Login extends React.Component {
     constructor(props) {
@@ -129,18 +130,19 @@ class Login extends React.Component {
             <Container 
                 className="login-form"
             >
-                <h2>Log In</h2>
+                <h2 className="form-heading">Log In</h2>
                 <Form 
                     noValidate
                     onSubmit={this.handleSubmit}
                 >
                 <Row>
                     <Form.Group
-                        as={Col}
-                        md="3"
+                        as={Row}
+                        md
                         controlId="validationUsername"
                     >
-                        <Form.Label>Username:</Form.Label>
+                        <Form.Label column md>Username:</Form.Label>
+                        <Col>
                         <Form.Control
                             type="text"
                             isInvalid={!this.state.validUsername}
@@ -151,15 +153,17 @@ class Login extends React.Component {
                         <Form.Control.Feedback 
                             type="invalid"
                         >{this.state.usernameErrorMsg}</Form.Control.Feedback>
+                        </Col>
                     </Form.Group>
                 </Row>
                 <Row>
                     <Form.Group
-                        as={Col}
-                        md="3"
+                        as={Row}
+                        md
                         controlId="validationPassword"
                     >
-                        <Form.Label>Password:</Form.Label>
+                        <Form.Label column md>Password:</Form.Label>
+                        <Col>
                         <Form.Control
                             type="password"
                             isInvalid={!this.state.validPassword}
@@ -170,6 +174,7 @@ class Login extends React.Component {
                         <Form.Control.Feedback
                             type="invalid"
                         >{this.state.passwordErrorMsg}</Form.Control.Feedback>
+                        </Col>
                     </Form.Group>
                 </Row>
                 <Button
