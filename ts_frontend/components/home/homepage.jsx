@@ -8,9 +8,6 @@ export default () => (
     <div>
         <Container>
             <Row>
-                <Link to="/logout">Logout</Link>
-            </Row>
-            <Row>
                 <p>Homepage</p>
             </Row>
         </Container>

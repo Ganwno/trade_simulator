@@ -1,0 +1,28 @@
+
+.logged_out_nav_bar,
+.logged_in_nav_bar {
+    align-content: center;
+
+    background-color: #091030;
+    border-color: #004770;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10px;
+
+    margin-top: 0px;
+    margin-bottom: 10px
+}
+
+.nav-link {
+    align-content: center;
+    text-align: center;
+}
+
+.nav-text {
+    align-content: center;
+    text-align: center;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+}
