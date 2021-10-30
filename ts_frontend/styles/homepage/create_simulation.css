@@ -1,0 +1,31 @@
+
+.form {
+    align-content: center;
+}
+
+.modal-content {
+    background-color: #091030;
+    border-color: #004770;
+    border-width: 10px;
+    border-style: solid;
+    border-radius: 5px;
+
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    width: 60%;
+}
+
+.btn-close {
+    color: #91ABBD;
+    background-color: #004770;
+    opacity: 1;
+}
+
+.modal-header {
+    border-bottom-width: 0px;
+}
+
+.modal-footer {
+    border-top-width: 0px;
+}

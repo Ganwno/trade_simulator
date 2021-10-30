@@ -7,6 +7,8 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
+import '../../styles/homepage/create_simulation.css';
+
 class CreateSimulationModal extends React.Component {
 
     constructor(props) {
@@ -297,6 +299,7 @@ class CreateSimulationModal extends React.Component {
 
         return (
             <Modal
+                className="create-simulation-modal"
                 centered={true}
                 onExit={() => this.props.onShowModalChange(false)}
                 onHide={this.handleClose}
