@@ -7,6 +7,8 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 
+import FuzzySearch from 'react-fuzzy';
+
 import '../../styles/homepage/create_simulation.css';
 
 class CreateSimulationModal extends React.Component {
@@ -99,6 +101,8 @@ class CreateSimulationModal extends React.Component {
         this.handleClose  = this.handleClose.bind(this);
         this.validateForm = this.validateForm.bind(this);
         this.displayStringToDate = this.displayStringToDate.bind(this);
+        this.onTickerSelect = this.onTickerSelect.bind(this);
+        // this.onTickerRemove = this.onTickerRemove.bind(this);
     }
 
 
@@ -220,6 +224,22 @@ class CreateSimulationModal extends React.Component {
         };
     }
 
+
+    onTickerSelect(selected) {
+        const toAdd = selected['name'];
+        if (!this.state.securitySet.includes(toAdd)) {
+            this.setState({securitySet: this.state.securitySet.concat(toAdd)});
+        }
+    }
+
+    /*
+    onTickerRemove(selectedValues, toRemove) {
+        const i = selectedValues.indexOf(toRemove);
+        if (i > -1) {
+            selectedValues.splice(i, 1);
+        }
+    }
+    */
 
     validateForm() {
         // Check that form inputs are in allowed ranges
@@ -384,6 +404,24 @@ class CreateSimulationModal extends React.Component {
                                 <Form.Control.Feedback
                                     type="invalid"
                                 >{this.state.initialCashErrorMsg}</Form.Control.Feedback>
+                            </Col>
+                        </Form.Group>
+                    </Row>
+                    <Row>
+                        <Form.Group
+                            as={Row}
+                            md
+                        >
+                            <Form.Label column md>Stocks to trade:</Form.Label>
+                            <Col>
+                                <FuzzySearch
+                                    list={this.props.tickersAndNames}
+                                    keys={['name']}
+                                    onSelect={this.onTickerSelect}
+                                    keyForDisplayName={'name'}
+                                    placeholder={'Search stocks'}
+                                    isDropdown={true}
+                                />
                             </Col>
                         </Form.Group>
                     </Row>

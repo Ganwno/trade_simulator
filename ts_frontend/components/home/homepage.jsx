@@ -11,8 +11,10 @@ import CreateSimulationModal from './CreateSimulationModal';
 class Homepage extends React.Component {
     constructor(props) {
         super(props)
+
         this.state = {
-            showCreateSimulationModal: false
+            showCreateSimulationModal: false,
+            tickersAndNames: []
         }
 
         this.updateShowModal = this.updateShowModal.bind(this);
@@ -20,6 +22,19 @@ class Homepage extends React.Component {
 
     updateShowModal(showModal) {
         this.setState({ showCreateSimulationModal: showModal });
+    }
+
+    getTickers = async (route) => {
+        fetch(route)
+            .then(response => response.text())
+            .then(text => text.split('\n').map(t => Object({name: t})))
+            .then(lines => {this.setState({ tickersAndNames: lines });})
+    }
+
+    componentDidMount() {
+
+        this.getTickers('/stock_symbols');
+        // this.forceUpdate();
     }
 
     render() {
@@ -40,6 +55,7 @@ class Homepage extends React.Component {
                                 <CreateSimulationModal
                                     showModal={this.state.showCreateSimulationModal}
                                     onShowModalChange={this.updateShowModal}
+                                    tickersAndNames={this.state.tickersAndNames}
                                 />
                             </Col>
 
