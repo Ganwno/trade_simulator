@@ -34,7 +34,6 @@ class Homepage extends React.Component {
     componentDidMount() {
 
         this.getTickers('/stock_symbols');
-        // this.forceUpdate();
     }
 
     render() {

@@ -1,8 +1,10 @@
 import React from 'react';
 
 import Button from 'react-bootstrap/Button';
+import CloseButton from 'react-bootstrap/CloseButton';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
+import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
@@ -102,7 +104,7 @@ class CreateSimulationModal extends React.Component {
         this.validateForm = this.validateForm.bind(this);
         this.displayStringToDate = this.displayStringToDate.bind(this);
         this.onTickerSelect = this.onTickerSelect.bind(this);
-        // this.onTickerRemove = this.onTickerRemove.bind(this);
+        this.onTickerRemove = this.onTickerRemove.bind(this);
     }
 
 
@@ -227,19 +229,25 @@ class CreateSimulationModal extends React.Component {
 
     onTickerSelect(selected) {
         const toAdd = selected['name'];
-        if (!this.state.securitySet.includes(toAdd)) {
-            this.setState({securitySet: this.state.securitySet.concat(toAdd)});
+        let securitySet = this.state.securitySet;
+        if (!securitySet.includes(toAdd)) {
+            let i = 0;
+            while (toAdd > securitySet[i]) { ++i; }
+            securitySet.splice(i, 0, toAdd);
+            this.setState({securitySet: securitySet});
         }
     }
 
-    /*
-    onTickerRemove(selectedValues, toRemove) {
-        const i = selectedValues.indexOf(toRemove);
+
+    onTickerRemove(toRemove) {
+        let securitySet = this.state.securitySet;
+        const i = securitySet.indexOf(toRemove);
         if (i > -1) {
-            selectedValues.splice(i, 1);
+            securitySet.splice(i, 1);
+            this.setState({ securitySet: securitySet});
         }
     }
-    */
+
 
     validateForm() {
         // Check that form inputs are in allowed ranges
@@ -315,6 +323,24 @@ class CreateSimulationModal extends React.Component {
 
 
     render() {
+
+        let selectedStocks = Array(
+            <ListGroup.Item
+                key="none"
+                disabled={true}
+            >None
+            </ListGroup.Item>);
+
+        if (this.state.securitySet.length > 0) {
+            selectedStocks = this.state.securitySet.map(s => 
+                <ListGroup.Item 
+                    key={s}
+                >{s}
+                <CloseButton
+                    onClick={(e) => {this.onTickerRemove(s)}}
+                />
+                </ListGroup.Item>);
+        }
 
 
         return (
@@ -415,13 +441,17 @@ class CreateSimulationModal extends React.Component {
                             <Form.Label column md>Stocks to trade:</Form.Label>
                             <Col>
                                 <FuzzySearch
+                                    className="ticker-search"
                                     list={this.props.tickersAndNames}
                                     keys={['name']}
-                                    onSelect={this.onTickerSelect}
+                                    onSelect={(e) => {this.onTickerSelect(e)}}
                                     keyForDisplayName={'name'}
                                     placeholder={'Search stocks'}
-                                    isDropdown={true}
                                 />
+                                Selected stocks:
+                                <ListGroup>
+                                    {selectedStocks}
+                                </ListGroup>
                             </Col>
                         </Form.Group>
                     </Row>
