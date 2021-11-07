@@ -89,6 +89,9 @@ class CreateSimulationModal extends React.Component {
             validExecutionDelay: true,
             executionDelayErrorMsg: '',
             checkedExecutionDelay: false,
+            validSecuritySet: true,
+            securitySetErrorMsg: '',
+            checkedSecuritySet: false,
             // UI helpers
             startTimeDisplayString: this.dateToDisplayString(defaultStartTime),
             endTimeDisplayString: this.dateToDisplayString(defaultEndTime),
@@ -105,6 +108,7 @@ class CreateSimulationModal extends React.Component {
         this.displayStringToDate = this.displayStringToDate.bind(this);
         this.onTickerSelect = this.onTickerSelect.bind(this);
         this.onTickerRemove = this.onTickerRemove.bind(this);
+        this.validateSecuritySet = this.validateSecuritySet.bind(this);
     }
 
 
@@ -234,7 +238,7 @@ class CreateSimulationModal extends React.Component {
             let i = 0;
             while (toAdd > securitySet[i]) { ++i; }
             securitySet.splice(i, 0, toAdd);
-            this.setState({securitySet: securitySet});
+            this.setState({ securitySet: securitySet }, this.validateSecuritySet);
         }
     }
 
@@ -244,18 +248,35 @@ class CreateSimulationModal extends React.Component {
         const i = securitySet.indexOf(toRemove);
         if (i > -1) {
             securitySet.splice(i, 1);
-            this.setState({ securitySet: securitySet});
+            this.setState({ securitySet: securitySet}, this.validateSecuritySet);
         }
+    }
+
+
+    validateSecuritySet() {
+        let validForm = true;
+        let securitySetErrorMsg = '';
+
+        if (this.state.securitySet.length === 0) {
+            securitySetErrorMsg = 'Choose at least 1 stock';
+            validForm = false;
+        }
+
+        this.setState({
+            securitySetErrorMsg: securitySetErrorMsg,
+            checkedSecuritySet: true
+        });
+
+        return validForm;
     }
 
 
     validateForm() {
         // Check that form inputs are in allowed ranges
-        let validForm = this.validateDates();
+        let validForm = this.validateDates() && this.validateSecuritySet();
         let initialCashErrorMsg = '';
         let transactionCostErrorMsg = '';
         let executionDelayErrorMsg = '';
-
 
         const numericErrorMsg = 'Must be a number at least 0';
         if (Number.isNaN(this.state.initialCash) || this.state.initialCash < 0) {
@@ -324,24 +345,41 @@ class CreateSimulationModal extends React.Component {
 
     render() {
 
-        let selectedStocks = Array(
-            <ListGroup.Item
-                key="none"
-                disabled={true}
-            >None
-            </ListGroup.Item>);
+        let selectedStocks = Array();
 
         if (this.state.securitySet.length > 0) {
             selectedStocks = this.state.securitySet.map(s => 
                 <ListGroup.Item 
                     key={s}
-                >{s}
-                <CloseButton
-                    onClick={(e) => {this.onTickerRemove(s)}}
-                />
+                >
+                <Container fluid className="ticker-container">
+                    <Row>
+                        <Col className="ticker-text">
+                            {s}
+                        </Col>
+                        <Col xs md="1">
+                            <CloseButton
+                            className="ticker-cancel-btn"
+                            onClick={(e) => {this.onTickerRemove(s)}}
+                            />
+                        </Col>
+                    </Row>
+                </Container>
                 </ListGroup.Item>);
         }
 
+        const fsInputStyle = {
+            color: "black",
+            marginTop: "0px",
+            marginBottom: "0px",
+        };
+        const fsInputWrapperStyle = {
+            borderRadius: "5px",
+            padding: "0px",
+        };
+        const fsListItemStyle = fsInputStyle;
+        const fsListWrapperStyle = {};
+        const fsSelectedListItemStyle = { ...fsInputStyle, ...{ backgroundColor: "#36A0C9"}};
 
         return (
             <Modal
@@ -437,6 +475,7 @@ class CreateSimulationModal extends React.Component {
                         <Form.Group
                             as={Row}
                             md
+                            controlId="tickerSearch"
                         >
                             <Form.Label column md>Stocks to trade:</Form.Label>
                             <Col>
@@ -446,9 +485,25 @@ class CreateSimulationModal extends React.Component {
                                     keys={['name']}
                                     onSelect={(e) => {this.onTickerSelect(e)}}
                                     keyForDisplayName={'name'}
+                                    maxResults={7}
                                     placeholder={'Search stocks'}
+                                    inputStyle={fsInputStyle}
+                                    inputWrapperStyle={fsInputWrapperStyle}
+                                    listItemStyle={fsListItemStyle}
+                                    listWrapperStyle={fsListWrapperStyle}
+                                    selectedListItemStyle={fsSelectedListItemStyle}
                                 />
-                                Selected stocks:
+                                <span className='ticker-error'>{this.state.securitySetErrorMsg}</span>
+                            </Col>
+                        </Form.Group>
+                    </Row>
+                    <Row>
+                        <Form.Group
+                            as={Row}
+                            md
+                        >
+                            <Form.Label column md>Selected stocks:</Form.Label>
+                            <Col>
                                 <ListGroup>
                                     {selectedStocks}
                                 </ListGroup>

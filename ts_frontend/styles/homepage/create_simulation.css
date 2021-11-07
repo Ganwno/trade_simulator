@@ -13,7 +13,7 @@
     margin-top: 20px;
     margin-bottom: 20px;
 
-    width: 60%;
+    width: 85%;
 }
 
 .btn-close {
@@ -28,4 +28,31 @@
 
 .modal-footer {
     border-top-width: 0px;
+}
+
+.list-group {
+    width: 430px;
+}
+
+.list-group-item {
+    background-color: #91ABBD;
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-left: 0px;
+    margin-right: 0px
+}
+
+.ticker-text {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.btn-close.ticker-cancel-btn {
+    background-color: #91ABBD;
+    opacity: .5;
+}
+
+.ticker-error {
+    color: #DB4F60;
+    max-width: max-content;
 }

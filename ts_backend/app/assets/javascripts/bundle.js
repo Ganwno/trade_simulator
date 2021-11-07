@@ -1593,13 +1593,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! react-bootstrap/Button */ "./node_modules/react-bootstrap/esm/Button.js");
-/* harmony import */ var react_bootstrap_CloseButton__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-bootstrap/CloseButton */ "./node_modules/react-bootstrap/esm/CloseButton.js");
-/* harmony import */ var react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-bootstrap/Container */ "./node_modules/react-bootstrap/esm/Container.js");
-/* harmony import */ var react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-bootstrap/Col */ "./node_modules/react-bootstrap/esm/Col.js");
+/* harmony import */ var react_bootstrap_CloseButton__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-bootstrap/CloseButton */ "./node_modules/react-bootstrap/esm/CloseButton.js");
+/* harmony import */ var react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-bootstrap/Container */ "./node_modules/react-bootstrap/esm/Container.js");
+/* harmony import */ var react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-bootstrap/Col */ "./node_modules/react-bootstrap/esm/Col.js");
 /* harmony import */ var react_bootstrap_ListGroup__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-bootstrap/ListGroup */ "./node_modules/react-bootstrap/esm/ListGroup.js");
-/* harmony import */ var react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-bootstrap/Modal */ "./node_modules/react-bootstrap/esm/Modal.js");
-/* harmony import */ var react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-bootstrap/Form */ "./node_modules/react-bootstrap/esm/Form.js");
-/* harmony import */ var react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react-bootstrap/Row */ "./node_modules/react-bootstrap/esm/Row.js");
+/* harmony import */ var react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! react-bootstrap/Modal */ "./node_modules/react-bootstrap/esm/Modal.js");
+/* harmony import */ var react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! react-bootstrap/Form */ "./node_modules/react-bootstrap/esm/Form.js");
+/* harmony import */ var react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react-bootstrap/Row */ "./node_modules/react-bootstrap/esm/Row.js");
 /* harmony import */ var react_fuzzy__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-fuzzy */ "./node_modules/react-fuzzy/dist/index.js");
 /* harmony import */ var _styles_homepage_create_simulation_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../styles/homepage/create_simulation.css */ "./styles/homepage/create_simulation.css");
 
@@ -1672,6 +1672,9 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       validExecutionDelay: true,
       executionDelayErrorMsg: '',
       checkedExecutionDelay: false,
+      validSecuritySet: true,
+      securitySetErrorMsg: '',
+      checkedSecuritySet: false,
       // UI helpers
       startTimeDisplayString: this.dateToDisplayString(defaultStartTime),
       endTimeDisplayString: this.dateToDisplayString(defaultEndTime),
@@ -1687,6 +1690,7 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
     this.displayStringToDate = this.displayStringToDate.bind(this);
     this.onTickerSelect = this.onTickerSelect.bind(this);
     this.onTickerRemove = this.onTickerRemove.bind(this);
+    this.validateSecuritySet = this.validateSecuritySet.bind(this);
   }
 
   dateToDisplayString(d) {
@@ -1805,7 +1809,7 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       securitySet.splice(i, 0, toAdd);
       this.setState({
         securitySet: securitySet
-      });
+      }, this.validateSecuritySet);
     }
   }
 
@@ -1817,13 +1821,29 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       securitySet.splice(i, 1);
       this.setState({
         securitySet: securitySet
-      });
+      }, this.validateSecuritySet);
     }
+  }
+
+  validateSecuritySet() {
+    let validForm = true;
+    let securitySetErrorMsg = '';
+
+    if (this.state.securitySet.length === 0) {
+      securitySetErrorMsg = 'Choose at least 1 stock';
+      validForm = false;
+    }
+
+    this.setState({
+      securitySetErrorMsg: securitySetErrorMsg,
+      checkedSecuritySet: true
+    });
+    return validForm;
   }
 
   validateForm() {
     // Check that form inputs are in allowed ranges
-    let validForm = this.validateDates();
+    let validForm = this.validateDates() && this.validateSecuritySet();
     let initialCashErrorMsg = '';
     let transactionCostErrorMsg = '';
     let executionDelayErrorMsg = '';
@@ -1885,22 +1905,44 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
   }
 
   render() {
-    let selectedStocks = Array( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_ListGroup__WEBPACK_IMPORTED_MODULE_3__.default.Item, {
-      key: "none",
-      disabled: true
-    }, "None"));
+    let selectedStocks = Array();
 
     if (this.state.securitySet.length > 0) {
       selectedStocks = this.state.securitySet.map(s => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_ListGroup__WEBPACK_IMPORTED_MODULE_3__.default.Item, {
         key: s
-      }, s, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_CloseButton__WEBPACK_IMPORTED_MODULE_4__.default, {
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_4__.default, {
+        fluid: true,
+        className: "ticker-container"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, {
+        className: "ticker-text"
+      }, s), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, {
+        xs: true,
+        md: "1"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_CloseButton__WEBPACK_IMPORTED_MODULE_7__.default, {
+        className: "ticker-cancel-btn",
         onClick: e => {
           this.onTickerRemove(s);
         }
-      })));
+      }))))));
     }
 
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_5__.default, {
+    const fsInputStyle = {
+      color: "black",
+      marginTop: "0px",
+      marginBottom: "0px"
+    };
+    const fsInputWrapperStyle = {
+      borderRadius: "5px",
+      padding: "0px"
+    };
+    const fsListItemStyle = fsInputStyle;
+    const fsListWrapperStyle = {};
+    const fsSelectedListItemStyle = { ...fsInputStyle,
+      ...{
+        backgroundColor: "#36A0C9"
+      }
+    };
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_8__.default, {
       className: "create-simulation-modal",
       centered: true,
       onExit: () => this.props.onShowModalChange(false),
@@ -1908,19 +1950,19 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       scrollable: true,
       show: this.props.showModal,
       size: 'lg'
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_5__.default.Header, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_8__.default.Header, {
       closeButton: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_5__.default.Title, null, "Create Simulation")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_5__.default.Body, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_6__.default, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_8__.default.Title, null, "Create Simulation")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_8__.default.Body, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_4__.default, {
       className: "create-simulation-form"
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default, {
       noValidate: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Group, {
-      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default,
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
       md: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Label, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
       column: true,
       md: true
-    }, "Start time:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control, {
+    }, "Start time:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control, {
       type: "datetime-local",
       isInvalid: !this.state.validStartTime,
       isValid: this.state.checkedStartTime && this.state.validStartTime,
@@ -1928,15 +1970,15 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       onChange: this.handleDateInput('startTime'),
       min: this.dateToDisplayString(this.state.minStartTime),
       max: this.dateToDisplayString(this.state.maxStartTime)
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control.Feedback, {
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control.Feedback, {
       type: "invalid"
-    }, this.state.startTimeErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Group, {
-      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default,
+    }, this.state.startTimeErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
       md: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Label, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
       column: true,
       md: true
-    }, "End time:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control, {
+    }, "End time:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control, {
       type: "datetime-local",
       isInvalid: !this.state.validEndTime,
       isValid: this.state.checkedEndTime && this.state.validEndTime,
@@ -1944,15 +1986,15 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       onChange: this.handleDateInput('endTime'),
       min: this.dateToDisplayString(this.state.minEndTime),
       max: this.dateToDisplayString(this.state.maxEndTime)
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control.Feedback, {
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control.Feedback, {
       type: "invalid"
-    }, this.state.endTimeErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Group, {
-      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default,
+    }, this.state.endTimeErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
       md: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Label, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
       column: true,
       md: true
-    }, "Initial cash ($):"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control, {
+    }, "Initial cash ($):"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control, {
       type: "number",
       step: "100",
       min: "0",
@@ -1961,15 +2003,16 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       isValid: this.state.checkedInitialCash && this.state.initialCashErrorMsg.length === 0,
       value: this.state.initialCash,
       onChange: this.handleInput('initialCash')
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control.Feedback, {
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control.Feedback, {
       type: "invalid"
-    }, this.state.initialCashErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Group, {
-      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default,
-      md: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Label, {
+    }, this.state.initialCashErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
+      md: true,
+      controlId: "tickerSearch"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
       column: true,
       md: true
-    }, "Stocks to trade:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_fuzzy__WEBPACK_IMPORTED_MODULE_1__.default, {
+    }, "Stocks to trade:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_fuzzy__WEBPACK_IMPORTED_MODULE_1__.default, {
       className: "ticker-search",
       list: this.props.tickersAndNames,
       keys: ['name'],
@@ -1977,38 +2020,52 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
         this.onTickerSelect(e);
       },
       keyForDisplayName: 'name',
-      placeholder: 'Search stocks'
-    }), "Selected stocks:", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_ListGroup__WEBPACK_IMPORTED_MODULE_3__.default, null, selectedStocks)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Group, {
-      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default,
+      maxResults: 7,
+      placeholder: 'Search stocks',
+      inputStyle: fsInputStyle,
+      inputWrapperStyle: fsInputWrapperStyle,
+      listItemStyle: fsListItemStyle,
+      listWrapperStyle: fsListWrapperStyle,
+      selectedListItemStyle: fsSelectedListItemStyle
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("span", {
+      className: "ticker-error"
+    }, this.state.securitySetErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
       md: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Label, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
       column: true,
       md: true
-    }, "Transaction cost ($):"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control, {
+    }, "Selected stocks:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_ListGroup__WEBPACK_IMPORTED_MODULE_3__.default, null, selectedStocks)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
+      md: true
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
+      column: true,
+      md: true
+    }, "Transaction cost ($):"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control, {
       type: "number",
       min: "0",
       isInvalid: this.state.transactionCostErrorMsg.length > 0,
       isValid: this.state.checkedTransactionCost && this.state.transactionCostErrorMsg.length === 0,
       value: this.state.transactionCost,
       onChange: this.handleInput('transactionCost')
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control.Feedback, {
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control.Feedback, {
       type: "invalid"
-    }, this.state.transactionCostErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Group, {
-      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_8__.default,
+    }, this.state.transactionCostErrorMsg)))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Group, {
+      as: react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_5__.default,
       md: true
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Label, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Label, {
       column: true,
       md: true
-    }, "Execution delay (sec):"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_9__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control, {
+    }, "Execution delay (sec):"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_6__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control, {
       type: "number",
       min: "0",
       isInvalid: this.state.executionDelayErrorMsg.length > 0,
       isValid: this.state.checkedExecutionDelay && this.state.executionDelayErrorMsg.length === 0,
       value: this.state.executionDelaySeconds,
       onChange: this.handleInput('executionDelaySeconds')
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_7__.default.Control.Feedback, {
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Form__WEBPACK_IMPORTED_MODULE_9__.default.Control.Feedback, {
       type: "invalid"
-    }, this.state.executionDelayErrorMsg))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_5__.default.Footer, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_10__.default, {
+    }, this.state.executionDelayErrorMsg))))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Modal__WEBPACK_IMPORTED_MODULE_8__.default.Footer, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_10__.default, {
       variant: "primary",
       onClick: this.handleSubmit
     }, "Create!")));
@@ -5304,7 +5361,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.form {\n    align-content: center;\n}\n\n.modal-content {\n    background-color: #091030;\n    border-color: #004770;\n    border-width: 10px;\n    border-style: solid;\n    border-radius: 5px;\n\n    margin-top: 20px;\n    margin-bottom: 20px;\n\n    width: 60%;\n}\n\n.btn-close {\n    color: #91ABBD;\n    background-color: #004770;\n    opacity: 1;\n}\n\n.modal-header {\n    border-bottom-width: 0px;\n}\n\n.modal-footer {\n    border-top-width: 0px;\n}\n", "",{"version":3,"sources":["webpack://./styles/homepage/create_simulation.css"],"names":[],"mappings":";AACA;IACI,qBAAqB;AACzB;;AAEA;IACI,yBAAyB;IACzB,qBAAqB;IACrB,kBAAkB;IAClB,mBAAmB;IACnB,kBAAkB;;IAElB,gBAAgB;IAChB,mBAAmB;;IAEnB,UAAU;AACd;;AAEA;IACI,cAAc;IACd,yBAAyB;IACzB,UAAU;AACd;;AAEA;IACI,wBAAwB;AAC5B;;AAEA;IACI,qBAAqB;AACzB","sourcesContent":["\n.form {\n    align-content: center;\n}\n\n.modal-content {\n    background-color: #091030;\n    border-color: #004770;\n    border-width: 10px;\n    border-style: solid;\n    border-radius: 5px;\n\n    margin-top: 20px;\n    margin-bottom: 20px;\n\n    width: 60%;\n}\n\n.btn-close {\n    color: #91ABBD;\n    background-color: #004770;\n    opacity: 1;\n}\n\n.modal-header {\n    border-bottom-width: 0px;\n}\n\n.modal-footer {\n    border-top-width: 0px;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.form {\n    align-content: center;\n}\n\n.modal-content {\n    background-color: #091030;\n    border-color: #004770;\n    border-width: 10px;\n    border-style: solid;\n    border-radius: 5px;\n\n    margin-top: 20px;\n    margin-bottom: 20px;\n\n    width: 85%;\n}\n\n.btn-close {\n    color: #91ABBD;\n    background-color: #004770;\n    opacity: 1;\n}\n\n.modal-header {\n    border-bottom-width: 0px;\n}\n\n.modal-footer {\n    border-top-width: 0px;\n}\n\n.list-group {\n    width: 430px;\n}\n\n.list-group-item {\n    background-color: #91ABBD;\n    padding-left: 0px;\n    padding-right: 0px;\n    margin-left: 0px;\n    margin-right: 0px\n}\n\n.ticker-text {\n    padding-left: 0px;\n    padding-right: 0px;\n}\n\n.btn-close.ticker-cancel-btn {\n    background-color: #91ABBD;\n    opacity: .5;\n}\n\n.ticker-error {\n    color: #DB4F60;\n    max-width: max-content;\n}\n", "",{"version":3,"sources":["webpack://./styles/homepage/create_simulation.css"],"names":[],"mappings":";AACA;IACI,qBAAqB;AACzB;;AAEA;IACI,yBAAyB;IACzB,qBAAqB;IACrB,kBAAkB;IAClB,mBAAmB;IACnB,kBAAkB;;IAElB,gBAAgB;IAChB,mBAAmB;;IAEnB,UAAU;AACd;;AAEA;IACI,cAAc;IACd,yBAAyB;IACzB,UAAU;AACd;;AAEA;IACI,wBAAwB;AAC5B;;AAEA;IACI,qBAAqB;AACzB;;AAEA;IACI,YAAY;AAChB;;AAEA;IACI,yBAAyB;IACzB,iBAAiB;IACjB,kBAAkB;IAClB,gBAAgB;IAChB;AACJ;;AAEA;IACI,iBAAiB;IACjB,kBAAkB;AACtB;;AAEA;IACI,yBAAyB;IACzB,WAAW;AACf;;AAEA;IACI,cAAc;IACd,sBAAsB;AAC1B","sourcesContent":["\n.form {\n    align-content: center;\n}\n\n.modal-content {\n    background-color: #091030;\n    border-color: #004770;\n    border-width: 10px;\n    border-style: solid;\n    border-radius: 5px;\n\n    margin-top: 20px;\n    margin-bottom: 20px;\n\n    width: 85%;\n}\n\n.btn-close {\n    color: #91ABBD;\n    background-color: #004770;\n    opacity: 1;\n}\n\n.modal-header {\n    border-bottom-width: 0px;\n}\n\n.modal-footer {\n    border-top-width: 0px;\n}\n\n.list-group {\n    width: 430px;\n}\n\n.list-group-item {\n    background-color: #91ABBD;\n    padding-left: 0px;\n    padding-right: 0px;\n    margin-left: 0px;\n    margin-right: 0px\n}\n\n.ticker-text {\n    padding-left: 0px;\n    padding-right: 0px;\n}\n\n.btn-close.ticker-cancel-btn {\n    background-color: #91ABBD;\n    opacity: .5;\n}\n\n.ticker-error {\n    color: #DB4F60;\n    max-width: max-content;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
