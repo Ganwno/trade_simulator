@@ -1512,6 +1512,42 @@ const logoutUser = () => dispatch => (0,_utils_session__WEBPACK_IMPORTED_MODULE_
 
 /***/ }),
 
+/***/ "./actions/simulation.js":
+/*!*******************************!*\
+  !*** ./actions/simulation.js ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "RECEIVE_CURRENT_SIMULATION": () => (/* binding */ RECEIVE_CURRENT_SIMULATION),
+/* harmony export */   "DELETE_CURRENT_SIMULATION": () => (/* binding */ DELETE_CURRENT_SIMULATION),
+/* harmony export */   "createNewSimulation": () => (/* binding */ createNewSimulation),
+/* harmony export */   "geCurrentSimulation": () => (/* binding */ geCurrentSimulation),
+/* harmony export */   "closeCurrentSimulation": () => (/* binding */ closeCurrentSimulation)
+/* harmony export */ });
+/* harmony import */ var _utils_simulation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils/simulation */ "./utils/simulation.js");
+
+const RECEIVE_CURRENT_SIMULATION = "RECEIVE_CURRENT_SIMULATION";
+const DELETE_CURRENT_SIMULATION = "DELETE_CURRENT_SIMULATION";
+
+const receiveCurrentSimulation = simulation => ({
+  type: RECEIVE_CURRENT_SIMULATION,
+  simulation
+});
+
+const deleteCurrentSimulation = simulation => ({
+  type: DELETE_CURRENT_SIMULATION,
+  simulation
+});
+
+const createNewSimulation = formSimulation => dispatch => (0,_utils_simulation__WEBPACK_IMPORTED_MODULE_0__.postSimulation)(formSimulation).then(simulation => dispatch(receiveCurrentSimulation(simulation)));
+const geCurrentSimulation = formSimulation => dispatch => (0,_utils_simulation__WEBPACK_IMPORTED_MODULE_0__.getSimulation)(formSimulation).then(simulation => dispatch(receiveCurrentSimulation(simulation)));
+const closeCurrentSimulation = formSimulation => dispatch => (0,_utils_simulation__WEBPACK_IMPORTED_MODULE_0__.deleteSimulation)(formSimulation).then(simulation => dispatch(deleteCurrentSimulation(simulation)));
+
+/***/ }),
+
 /***/ "./components/app.jsx":
 /*!****************************!*\
   !*** ./components/app.jsx ***!
@@ -1532,7 +1568,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _session_logout_container__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./session/logout_container */ "./components/session/logout_container.js");
 /* harmony import */ var _utils_route_util__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/route_util */ "./utils/route_util.jsx");
 /* harmony import */ var _session_welcome__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./session/welcome */ "./components/session/welcome.jsx");
-/* harmony import */ var _home_homepage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./home/homepage */ "./components/home/homepage.jsx");
+/* harmony import */ var _home_homepage_container__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./home/homepage_container */ "./components/home/homepage_container.js");
 
 
 
@@ -1572,7 +1608,7 @@ __webpack_require__.r(__webpack_exports__);
 }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_route_util__WEBPACK_IMPORTED_MODULE_6__.ProtectedRoute, {
   exact: true,
   path: "/homepage",
-  component: _home_homepage__WEBPACK_IMPORTED_MODULE_8__.default
+  component: _home_homepage_container__WEBPACK_IMPORTED_MODULE_8__.default
 }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_9__.Route, {
   path: "/logout",
   component: _session_logout_container__WEBPACK_IMPORTED_MODULE_5__.default
@@ -1885,7 +1921,19 @@ class CreateSimulationModal extends react__WEBPACK_IMPORTED_MODULE_0__.Component
       e.stopPropagation();
     } else {
       // send request to create simulation
-      console.log('send request to create simulation'); // close the modal
+      console.log('send request to create simulation'); // format form data for new simulation request
+
+      const simulation = {
+        session_token: this.props.user.session_token,
+        start_time: this.state.startTime.getTime() / 1000,
+        end_time: this.state.endTime.getTime() / 1000,
+        initial_cash: this.state.initialCash,
+        security_set: this.state.securitySet.map(s => s.split(' - ')[0]).join('_'),
+        transaction_cost: this.state.transactionCost,
+        exec_delay_sec: this.state.executionDelaySeconds
+      };
+      this.props.createNewSimulation(simulation).then( // redirect to simulation page
+      console.log('redirect to simulation page')); // close the modal
 
       this.props.onShowModalChange(false); // reset form validation
 
@@ -2142,13 +2190,45 @@ class Homepage extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     }, "New Simulation"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CreateSimulationModal__WEBPACK_IMPORTED_MODULE_1__.default, {
       showModal: this.state.showCreateSimulationModal,
       onShowModalChange: this.updateShowModal,
-      tickersAndNames: this.state.tickersAndNames
+      tickersAndNames: this.state.tickersAndNames,
+      user: this.props.user,
+      createNewSimulation: this.props.createNewSimulation
     })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_3__.default, null)));
   }
 
 }
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Homepage);
+
+/***/ }),
+
+/***/ "./components/home/homepage_container.js":
+/*!***********************************************!*\
+  !*** ./components/home/homepage_container.js ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _actions_simulation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../actions/simulation */ "./actions/simulation.js");
+/* harmony import */ var _homepage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./homepage */ "./components/home/homepage.jsx");
+
+
+
+
+const mapStateToProps = state => ({
+  user: state.session.currentUser
+});
+
+const mapDispatchToProps = dispatch => ({
+  createNewSimulation: formSimulation => dispatch((0,_actions_simulation__WEBPACK_IMPORTED_MODULE_1__.createNewSimulation)(formSimulation))
+});
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,react_redux__WEBPACK_IMPORTED_MODULE_0__.connect)(mapStateToProps, mapDispatchToProps)(_homepage__WEBPACK_IMPORTED_MODULE_2__.default));
 
 /***/ }),
 
@@ -2916,12 +2996,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
+/* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
 /* harmony import */ var _session__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./session */ "./reducers/session.js");
+/* harmony import */ var _simulation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./simulation */ "./reducers/simulation.js");
 
 
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,redux__WEBPACK_IMPORTED_MODULE_1__.combineReducers)({
-  session: _session__WEBPACK_IMPORTED_MODULE_0__.default
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,redux__WEBPACK_IMPORTED_MODULE_2__.combineReducers)({
+  session: _session__WEBPACK_IMPORTED_MODULE_0__.default,
+  simulation: _simulation__WEBPACK_IMPORTED_MODULE_1__.default
 }));
 
 /***/ }),
@@ -2957,6 +3040,43 @@ const _nullSession = {
 
     case _actions_session__WEBPACK_IMPORTED_MODULE_0__.LOGOUT_CURRENT_USER:
       return _nullSession;
+
+    default:
+      return state;
+  }
+});
+
+/***/ }),
+
+/***/ "./reducers/simulation.js":
+/*!********************************!*\
+  !*** ./reducers/simulation.js ***!
+  \********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _actions_simulation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../actions/simulation */ "./actions/simulation.js");
+ // default state
+
+const _nullSimulation = {
+  currentSimulation: null
+}; // simulation reducer
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((state = _nullSimulation, action) => {
+  Object.freeze(state);
+
+  switch (action.type) {
+    case _actions_simulation__WEBPACK_IMPORTED_MODULE_0__.RECEIVE_CURRENT_SIMULATION:
+      return Object.assign({}, {
+        currentSimulation: action.simulation
+      });
+
+    case _actions_simulation__WEBPACK_IMPORTED_MODULE_0__.DELETE_CURRENT_SIMULATION:
+      return _nullSimulation;
 
     default:
       return state;
@@ -3124,6 +3244,57 @@ const deleteSession = () => jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
   method: 'DELETE',
   headers: {
     'X-CSRF-Token': AUTH_TOKEN
+  }
+});
+
+/***/ }),
+
+/***/ "./utils/simulation.js":
+/*!*****************************!*\
+  !*** ./utils/simulation.js ***!
+  \*****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "postSimulation": () => (/* binding */ postSimulation),
+/* harmony export */   "getSimulation": () => (/* binding */ getSimulation),
+/* harmony export */   "deleteSimulation": () => (/* binding */ deleteSimulation)
+/* harmony export */ });
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_0__);
+ // Get CSRF token, include as a header in non-GET requests.
+
+var AUTH_TOKEN = jquery__WEBPACK_IMPORTED_MODULE_0___default()('meta[name=csrf-token]').attr('content'); // Create simulation
+
+const postSimulation = simulation => jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+  url: '/api/simulation',
+  method: 'POST',
+  headers: {
+    'X-CSRF-Token': AUTH_TOKEN
+  },
+  data: {
+    simulation
+  }
+}); // Show simulation
+
+const getSimulation = simulation => jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+  url: '/api/simulation',
+  method: 'GET',
+  data: {
+    simulation
+  }
+}); // Delete simulation
+
+const deleteSimulation = simulation => jquery__WEBPACK_IMPORTED_MODULE_0___default().ajax({
+  url: '/api/simulation',
+  method: 'DELETE',
+  headers: {
+    'X-CSRF-Token': AUTH_TOKEN
+  },
+  data: {
+    simulation
   }
 });
 

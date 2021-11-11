@@ -55,6 +55,8 @@ class Homepage extends React.Component {
                                     showModal={this.state.showCreateSimulationModal}
                                     onShowModalChange={this.updateShowModal}
                                     tickersAndNames={this.state.tickersAndNames}
+                                    user={this.props.user}
+                                    createNewSimulation={this.props.createNewSimulation}
                                 />
                             </Col>
 

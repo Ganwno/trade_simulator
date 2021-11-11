@@ -3,6 +3,7 @@ Rails.application.routes.draw do
       resource :user, only: [:create]
       resource :session, only: [:create, :destroy]
       resource :tick, only: [:create, :show, :destroy]
+      resource :simulation, only: [:create, :show, :destroy]
   end
   # Set the homepage
   get 'static_pages/root'

@@ -321,6 +321,23 @@ class CreateSimulationModal extends React.Component {
             // send request to create simulation
             console.log('send request to create simulation');
 
+            // format form data for new simulation request
+            const simulation = {
+                session_token: this.props.user.session_token,
+                start_time: this.state.startTime.getTime() / 1000,
+                end_time: this.state.endTime.getTime() / 1000,
+                initial_cash: this.state.initialCash,
+                security_set: this.state.securitySet.map(s => s.split(' - ')[0]).join('_'),
+                transaction_cost: this.state.transactionCost,
+                exec_delay_sec: this.state.executionDelaySeconds
+            };
+
+            this.props.createNewSimulation(simulation)
+                .then(
+                    // redirect to simulation page
+                    console.log('redirect to simulation page')
+                );
+
             // close the modal
             this.props.onShowModalChange(false);
 

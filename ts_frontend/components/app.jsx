@@ -8,7 +8,7 @@ import LoginContainer from './session/login_container';
 import LogoutContainer from './session/logout_container';
 import { AuthRoute, ProtectedRoute } from '../utils/route_util';
 import Welcome from './session/welcome';
-import Homepage from './home/homepage';
+import HomepageContainer from './home/homepage_container';
 
 export default () => (
     <div>
@@ -19,7 +19,7 @@ export default () => (
         <Route exact path="/login" component={LoggedOutNavBarContainer} />
         <Route path="/login" component={LoginContainer} />
         <ProtectedRoute exact path="/homepage" component={LoggedInNavBarContainer} />
-        <ProtectedRoute exact path="/homepage" component={Homepage} />
+        <ProtectedRoute exact path="/homepage" component={HomepageContainer} />
         <Route path="/logout" component={LogoutContainer} />
     
     </div>
