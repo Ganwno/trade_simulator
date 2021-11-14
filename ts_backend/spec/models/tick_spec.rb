@@ -12,7 +12,7 @@ RSpec.describe Tick, type: :model do
     it {should have_db_column(:quote_set)}
 
     it 'creates Ticks from TickData and maps tickers to quotes' do
-        start_time = 1631886300
+        start_time = 1631886300     # Fri Sep 17 2021 09:45:00 GMT-0400 (Eastern Daylight Time)
         end_time = start_time
         t = TickData.new(['K', 'MS'], start_time, end_time)
         timestamp = start_time

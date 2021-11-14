@@ -3,8 +3,8 @@ require 'tickdata'
 
 RSpec.describe TickData do
     it 'creates seeded TickData' do
-        start_time = 1631886300
-        end_time = 1631907840
+        start_time = 1631886300     # Fri Sep 17 2021 09:45:00 GMT-0400 (Eastern Daylight Time)
+        end_time = 1631907840       # Fri Sep 17 2021 15:44:00 GMT-0400 (Eastern Daylight Time)
         t = TickData.new(['MSFT', 'AAPL'], start_time, end_time)
         
         expect(t.tickers).to eq(['MSFT', 'AAPL'])
