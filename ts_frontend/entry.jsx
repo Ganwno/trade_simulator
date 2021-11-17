@@ -7,11 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("root");
     let preloadedState = {};
     if (window.currentUser){
-        preloadedState = {
-            session: {
-                currentUser: window.currentUser.user
-            }
+        preloadedState = {...preloadedState,
+            session: { currentUser: window.currentUser.user }
         };
+    }
+    if (window.currentSimulation) {
+        preloadedState = {...preloadedState,
+            simulation: { currentSimulation: window.currentSimulation.simulation }
+        }
     }
     const store = createStore(preloadedState);
     window.getState = store.getState;

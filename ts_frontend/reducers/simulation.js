@@ -2,7 +2,8 @@ import { RECEIVE_CURRENT_SIMULATION, DELETE_CURRENT_SIMULATION } from "../action
 
 // default state
 const _nullSimulation = {
-    currentSimulation: null
+    currentSimulation: null,
+    errors: {}
 };
 
 // simulation reducer
@@ -11,7 +12,8 @@ export default (state = _nullSimulation, action) => {
     switch (action.type) {
 
         case RECEIVE_CURRENT_SIMULATION:
-            return Object.assign({}, { currentSimulation: action.simulation});
+            return Object.assign({}, {  currentSimulation: action.simulation.simulation,
+                                        errors: action.simulation.errors });
 
         case DELETE_CURRENT_SIMULATION:
             return _nullSimulation;

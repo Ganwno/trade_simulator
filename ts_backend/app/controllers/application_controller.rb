@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
     # make current_user available in all views
-    helper_method :current_user
+    helper_method :current_user, :current_simulation
 
     def login!(user)
         @current_user = user
@@ -23,6 +23,16 @@ class ApplicationController < ActionController::Base
     def require_current_user!
         # direct non-logged in users to new_session_url
         redirect_to new_session_url if current_user.nil?
+    end
+
+    def load_simulation!(simulation)
+        @current_simulation = simulation
+        session[:simulation_id] = simulation.id
+    end
+
+    def current_simulation
+        return nil if session[:simulation_id].nil?
+        @current_simulation ||= Simulation.find_by(id: session[:simulation_id])
     end
 
 end

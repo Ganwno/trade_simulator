@@ -9,6 +9,7 @@ import LogoutContainer from './session/logout_container';
 import { AuthRoute, ProtectedRoute } from '../utils/route_util';
 import Welcome from './session/welcome';
 import HomepageContainer from './home/homepage_container';
+import SimulationContainer from './simulation/simulation_container';
 
 export default () => (
     <div>
@@ -18,8 +19,9 @@ export default () => (
         <Route path="/signup" component={SignupContainer} />
         <Route exact path="/login" component={LoggedOutNavBarContainer} />
         <Route path="/login" component={LoginContainer} />
-        <ProtectedRoute exact path="/homepage" component={LoggedInNavBarContainer} />
+        <ProtectedRoute path="/" component={LoggedInNavBarContainer} />
         <ProtectedRoute exact path="/homepage" component={HomepageContainer} />
+        <ProtectedRoute exact path="/simulation" component={SimulationContainer} />
         <Route path="/logout" component={LogoutContainer} />
     
     </div>

@@ -15,7 +15,7 @@ class Api::SimulationsController < ApplicationController
                 tick_data = TickData.new(@simulation.security_set.split('_'), @simulation.start_time, @simulation.end_time)
                 Tick.save_tick_data(@simulation.id, tick_data)
             end
-
+            load_simulation!(@simulation)
             render :show
         else
             render json: {id: nil, errors: @simulation.errors.messages}
