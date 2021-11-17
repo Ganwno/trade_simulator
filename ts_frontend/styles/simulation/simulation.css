@@ -1,0 +1,20 @@
+
+#button-start {
+    background-color: #198754;
+    color: black;
+}
+
+#button-pause {
+    background-color: #ffc107;
+    color: black;
+}
+
+#button-stop {
+    background-color: #dc3545;
+    color: black;
+}
+
+.time-row {
+    font-size: 25px;
+    color: #91ABBD;
+}

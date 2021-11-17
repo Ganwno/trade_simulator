@@ -318,9 +318,6 @@ class CreateSimulationModal extends React.Component {
             e.stopPropagation();
         }
         else {
-            // send request to create simulation
-            console.log('send request to create simulation');
-
             // format form data for new simulation request
             const simulation = {
                 session_token: this.props.user.session_token,
@@ -331,12 +328,14 @@ class CreateSimulationModal extends React.Component {
                 transaction_cost: this.state.transactionCost,
                 exec_delay_sec: this.state.executionDelaySeconds
             };
-
+            // send request to create simulation
+            let createdSimulation = false;
             this.props.createNewSimulation(simulation)
-                .then(
+                .then(action => {
                     // redirect to simulation page
-                    console.log('redirect to simulation page')
-                );
+                    createdSimulation = Object.keys(action.simulation.errors).length === 0;
+                }
+            ).then(() => { this.props.updateCreatedSimulation(createdSimulation) });
 
             // close the modal
             this.props.onShowModalChange(false);

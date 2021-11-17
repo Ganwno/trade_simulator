@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -13,15 +13,21 @@ class Homepage extends React.Component {
         super(props)
 
         this.state = {
+            createdSimulation: false,
             showCreateSimulationModal: false,
             tickersAndNames: []
         }
 
         this.updateShowModal = this.updateShowModal.bind(this);
+        this.updateCreatedSimulation = this.updateCreatedSimulation.bind(this);
     };
 
     updateShowModal(showModal) {
         this.setState({ showCreateSimulationModal: showModal });
+    }
+
+    updateCreatedSimulation(createdSimulation) {
+        this.setState({ createdSimulation: createdSimulation });
     }
 
     getTickers = async (route) => {
@@ -37,6 +43,11 @@ class Homepage extends React.Component {
     }
 
     render() {
+
+        // Redirect to simulation page after successful login
+        if (this.state.createdSimulation) {
+            return <Redirect to="/simulation" />
+        }
 
         return (
             <div>
@@ -57,6 +68,7 @@ class Homepage extends React.Component {
                                     tickersAndNames={this.state.tickersAndNames}
                                     user={this.props.user}
                                     createNewSimulation={this.props.createNewSimulation}
+                                    updateCreatedSimulation={this.updateCreatedSimulation}
                                 />
                             </Col>
 
