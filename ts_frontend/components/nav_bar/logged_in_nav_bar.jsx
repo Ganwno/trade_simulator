@@ -13,10 +13,10 @@ export default ({ user }) => {
             <Row>
                 <Col><h1>Trade Simulator</h1></Col>
                 <Col className="nav-text" xs md="2">
-                    User: {user.username}
+                    <i class="fas fa-user-alt"></i> {user.username}
                 </Col>
                 <Col className="nav-link" xs md="1">
-                    <Link to="/logout">Logout</Link>
+                    <i class="fas fa-sign-out-alt"></i> <Link to="/logout">Logout</Link>
                 </Col>
             </Row>
         </Container>

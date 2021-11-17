@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import App from './app';
 
+import '../node_modules/@fortawesome/fontawesome-free/js/all.js';
 import '../styles/root.css';
 
 export default ({ store }) => (
