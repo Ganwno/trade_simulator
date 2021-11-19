@@ -6767,13 +6767,13 @@ __webpack_require__.r(__webpack_exports__);
     xs: true,
     md: "2"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", {
-    class: "fas fa-user-alt"
+    className: "fas fa-user-alt"
   }), " ", user.username), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_4__.default, {
     className: "nav-link",
     xs: true,
-    md: "1"
+    md: "2"
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("i", {
-    class: "fas fa-sign-out-alt"
+    className: "fas fa-sign-out-alt"
   }), " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_5__.Link, {
     to: "/logout"
   }, "Logout"))));
