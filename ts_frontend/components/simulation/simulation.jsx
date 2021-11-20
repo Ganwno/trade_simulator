@@ -28,45 +28,75 @@ class Simulation extends React.Component {
             // time series
             quote_times: new Array(pre_open_points).fill(0).map((_, i) => (this.props.simulation.start_time - pre_open_points + i) * 1000),
             account_values: new Array(pre_open_points).fill(initial_cash),
-            stock_prices: { 'AAPL': {price: [300, 301, 302], upDownPct: 0.006667}, 'GOOGL': {price: [1305, 1302, 1303], upDownPct: -0.00153} } // Object.fromEntries(tickers.map(ticker => [ticker, {price: {}, upDownPct: 0}]))
+            stock_prices: { 'AAPL': {price: [300, 301, 302], upDownPct: 0.006667}, 'GOOGL': {price: [1305, 1302, 1303], upDownPct: -0.00153} }, // Object.fromEntries(tickers.map(ticker => [ticker, {price: {}, upDownPct: 0}]))
+            // start/pause/stop states
+            simulationIsRunning: false,
+            simulationIsStopped: false
         }
 
         // bind methods
         this.startSimulation = this.startSimulation.bind(this);
         this.pauseSimulation = this.pauseSimulation.bind(this);
         this.stopSimulation = this.stopSimulation.bind(this);
-        this.requestTickUpdate = this.requestTickUpdate.bind(this);
+        this.requestTickUpdates = this.requestTickUpdates.bind(this);
         this.receiveTickUpdate = this.receiveTickUpdate.bind(this);
     }
 
 
     startSimulation() {
-        console.log('Start simulation');
-
-        // fake data for testing:
-        this.receiveTickUpdate();
+        this.setState({
+            simulationIsRunning: true
+        }, () => {
+            this.requestTickUpdates();
+            console.log('Start simulation');
+        });
     }
 
 
     pauseSimulation() {
-        console.log('Puse simulation...');
+        this.setState({
+            simulationIsRunning: false
+        },
+        console.log('Paused simulation...')
+        );
     }
 
 
     stopSimulation() {
-        console.log('Stop simulation');
+        this.setState({
+            simulationIsRunning: false,
+            simulationIsStopped: true
+        },
+        console.log('Stop simulation')
+        );
     }
 
 
-    requestTickUpdate() {
-        // send request for next tick
+    requestTickUpdates() {
+        if (this.state.simulationIsRunning) {
+            // send request for next tick
+            $.ajax({
+                url: '/api/tick',
+                method: 'GET',
+                data: { tick: { simulation_id: this.props.simulation.id, timestamp: this.state.simulation_time / 1000 } },
+                complete: () => {
+                    // schedule the next request only when the current one is complete
+                    setTimeout(this.requestTickUpdates, 1000);
+                },
+                success: (response) => {
+                    // receive update in callback
+                    this.receiveTickUpdate(response);
+                }
+            });
+        }
     }
 
 
-    receiveTickUpdate() {
+    receiveTickUpdate(response) {
         // update simulation time, quotes and portfolio with data from new tick
 
         const newSimulationTime = this.state.simulation_time + 1000;
+        // fake data for testing:
         const newAccountValue = this.state.account_value + (Math.random() - 0.5) * 10;
 
         this.setState({
