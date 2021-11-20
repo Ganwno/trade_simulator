@@ -7511,7 +7511,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react-bootstrap/Col */ "./node_modules/react-bootstrap/esm/Col.js");
 /* harmony import */ var react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-bootstrap/Container */ "./node_modules/react-bootstrap/esm/Container.js");
 /* harmony import */ var react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-bootstrap/Row */ "./node_modules/react-bootstrap/esm/Row.js");
+/* harmony import */ var react_bootstrap_Table__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! react-bootstrap/Table */ "./node_modules/react-bootstrap/esm/Table.js");
 /* harmony import */ var _styles_simulation_simulation_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../styles/simulation/simulation.css */ "./styles/simulation/simulation.css");
+
 
 
 
@@ -7532,16 +7534,34 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         cash: {
           units: initial_cash,
           price: 1,
+          upDownPct: 0,
           market_value: initial_cash
+        },
+        'GOOGL': {
+          units: 10,
+          price: 1303.23,
+          upDownPct: -0.0134,
+          market_value: 13032.3
+        },
+        'AAPL': {
+          units: 2,
+          price: 305.50623234,
+          upDownPct: 0.00932,
+          market_value: 2 * 305.50623234
         }
       },
+      portfolio_tickers: ['AAPL', 'GOOGL'],
       stock_tickers: tickers,
       simulation_id: this.props.simulation.id,
       simulation_time: this.props.simulation.start_time * 1000,
       // time series
       quote_times: [],
       account_values: [],
-      stock_prices: Object.fromEntries(tickers.map(ticker => [ticker, []]))
+      stock_prices: {
+        'AAPL': [300, 301, 302],
+        'GOOGL': [1305, 1302, 1303]
+      } // Object.fromEntries(tickers.map(ticker => [ticker, []]))
+
     }; // bind methods
 
     this.startSimulation = this.startSimulation.bind(this);
@@ -7673,6 +7693,38 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   }
 
   render() {
+    // up/down colors
+    const upColor = '#198754'; // green
+
+    const downColor = '#dc3545'; // red
+    // portfolio table rows
+
+    const portfolio_table_rows = this.state.portfolio_tickers.map(t => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", {
+      key: t
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+      style: {
+        textAlign: 'left'
+      }
+    }, t), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+      style: {
+        textAlign: 'right',
+        color: this.state.portfolio[t].upDownPct >= 0 ? upColor : downColor
+      }
+    }, (100 * this.state.portfolio[t].upDownPct).toFixed(2), "%"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+      style: {
+        textAlign: 'right',
+        color: this.state.portfolio[t].upDownPct >= 0 ? upColor : downColor
+      }
+    }, this.formatDollarAmount(this.state.portfolio[t].price)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+      style: {
+        textAlign: 'center'
+      }
+    }, this.state.portfolio[t].units), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+      style: {
+        textAlign: 'right',
+        color: '#ff6600'
+      }
+    }, "$", this.formatDollarAmount(this.state.portfolio[t].market_value))));
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Container__WEBPACK_IMPORTED_MODULE_2__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_3__.default, null, " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_4__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_ButtonGroup__WEBPACK_IMPORTED_MODULE_5__.default, {
       size: "lg"
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Button__WEBPACK_IMPORTED_MODULE_6__.default, {
@@ -7702,7 +7754,39 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
       className: "time-row"
     }, "Time: ", new Date(this.state.simulation_time).toLocaleTimeString()))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_3__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_4__.default, null, " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
       id: "portfolio-chart"
-    })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_4__.default, null, " ", "Stock List")));
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Row__WEBPACK_IMPORTED_MODULE_3__.default, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("p", {
+      style: {
+        textAlign: 'right',
+        color: '#ff6600'
+      }
+    }, "Available cash: $", this.formatDollarAmount(this.state.portfolio.cash.market_value))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Table__WEBPACK_IMPORTED_MODULE_7__.default, {
+      id: "portfolio-table",
+      responsive: "true"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("thead", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tr", {
+      style: {
+        color: '#91ABBD'
+      }
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", {
+      style: {
+        textAlign: 'left'
+      }
+    }, "Ticker"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", {
+      style: {
+        textAlign: 'right'
+      }
+    }, "Change"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", {
+      style: {
+        textAlign: 'right'
+      }
+    }, "Price"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", {
+      style: {
+        textAlign: 'center'
+      }
+    }, "Shares"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("th", {
+      style: {
+        textAlign: 'right'
+      }
+    }, "Market Value"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("tbody", null, portfolio_table_rows))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react_bootstrap_Col__WEBPACK_IMPORTED_MODULE_4__.default, null, " ", "Stock List")));
   }
 
 }
@@ -10366,7 +10450,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()((_node_modules_css_loader_dist_runtime_cssWithMappingToString_js__WEBPACK_IMPORTED_MODULE_0___default()));
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n#button-start {\n    background-color: #198754;\n    color: black;\n}\n\n#button-pause {\n    background-color: #ffc107;\n    color: black;\n}\n\n#button-stop {\n    background-color: #dc3545;\n    color: black;\n}\n\n.container {\n    margin-left: 0px;\n    margin-right: 0px;\n    padding-left: 0px;\n    padding-right: 0px;\n}\n\n.time-row {\n    font-size: 25px;\n    color: #91ABBD;\n}\n", "",{"version":3,"sources":["webpack://./styles/simulation/simulation.css"],"names":[],"mappings":";AACA;IACI,yBAAyB;IACzB,YAAY;AAChB;;AAEA;IACI,yBAAyB;IACzB,YAAY;AAChB;;AAEA;IACI,yBAAyB;IACzB,YAAY;AAChB;;AAEA;IACI,gBAAgB;IAChB,iBAAiB;IACjB,iBAAiB;IACjB,kBAAkB;AACtB;;AAEA;IACI,eAAe;IACf,cAAc;AAClB","sourcesContent":["\n#button-start {\n    background-color: #198754;\n    color: black;\n}\n\n#button-pause {\n    background-color: #ffc107;\n    color: black;\n}\n\n#button-stop {\n    background-color: #dc3545;\n    color: black;\n}\n\n.container {\n    margin-left: 0px;\n    margin-right: 0px;\n    padding-left: 0px;\n    padding-right: 0px;\n}\n\n.time-row {\n    font-size: 25px;\n    color: #91ABBD;\n}\n"],"sourceRoot":""}]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n#button-start {\n    background-color: #198754;\n    color: black;\n}\n\n#button-pause {\n    background-color: #ffc107;\n    color: black;\n}\n\n#button-stop {\n    background-color: #dc3545;\n    color: black;\n}\n\n.container {\n    margin-left: 0px;\n    margin-right: 0px;\n    padding-left: 0px;\n    padding-right: 0px;\n}\n\n.time-row {\n    font-size: 25px;\n    color: #91ABBD;\n}\n\n#portfolio-table {\n    color: #91ABBD;\n    border-color: #575660;\n}\n", "",{"version":3,"sources":["webpack://./styles/simulation/simulation.css"],"names":[],"mappings":";AACA;IACI,yBAAyB;IACzB,YAAY;AAChB;;AAEA;IACI,yBAAyB;IACzB,YAAY;AAChB;;AAEA;IACI,yBAAyB;IACzB,YAAY;AAChB;;AAEA;IACI,gBAAgB;IAChB,iBAAiB;IACjB,iBAAiB;IACjB,kBAAkB;AACtB;;AAEA;IACI,eAAe;IACf,cAAc;AAClB;;AAEA;IACI,cAAc;IACd,qBAAqB;AACzB","sourcesContent":["\n#button-start {\n    background-color: #198754;\n    color: black;\n}\n\n#button-pause {\n    background-color: #ffc107;\n    color: black;\n}\n\n#button-stop {\n    background-color: #dc3545;\n    color: black;\n}\n\n.container {\n    margin-left: 0px;\n    margin-right: 0px;\n    padding-left: 0px;\n    padding-right: 0px;\n}\n\n.time-row {\n    font-size: 25px;\n    color: #91ABBD;\n}\n\n#portfolio-table {\n    color: #91ABBD;\n    border-color: #575660;\n}\n"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -26675,6 +26759,65 @@ Switch.displayName = 'Switch';
   Input: _FormCheck__WEBPACK_IMPORTED_MODULE_2__.default.Input,
   Label: _FormCheck__WEBPACK_IMPORTED_MODULE_2__.default.Label
 }));
+
+/***/ }),
+
+/***/ "./node_modules/react-bootstrap/esm/Table.js":
+/*!***************************************************!*\
+  !*** ./node_modules/react-bootstrap/esm/Table.js ***!
+  \***************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _ThemeProvider__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ThemeProvider */ "./node_modules/react-bootstrap/esm/ThemeProvider.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react/jsx-runtime */ "./node_modules/react/jsx-runtime.js");
+
+
+
+
+const Table = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.forwardRef(({
+  bsPrefix,
+  className,
+  striped,
+  bordered,
+  borderless,
+  hover,
+  size,
+  variant,
+  responsive,
+  ...props
+}, ref) => {
+  const decoratedBsPrefix = (0,_ThemeProvider__WEBPACK_IMPORTED_MODULE_3__.useBootstrapPrefix)(bsPrefix, 'table');
+  const classes = classnames__WEBPACK_IMPORTED_MODULE_0___default()(className, decoratedBsPrefix, variant && `${decoratedBsPrefix}-${variant}`, size && `${decoratedBsPrefix}-${size}`, striped && `${decoratedBsPrefix}-striped`, bordered && `${decoratedBsPrefix}-bordered`, borderless && `${decoratedBsPrefix}-borderless`, hover && `${decoratedBsPrefix}-hover`);
+
+  const table = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("table", { ...props,
+    className: classes,
+    ref: ref
+  });
+
+  if (responsive) {
+    let responsiveClass = `${decoratedBsPrefix}-responsive`;
+
+    if (typeof responsive === 'string') {
+      responsiveClass = `${responsiveClass}-${responsive}`;
+    }
+
+    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
+      className: responsiveClass,
+      children: table
+    });
+  }
+
+  return table;
+});
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Table);
 
 /***/ }),
 

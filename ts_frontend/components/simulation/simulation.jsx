@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Row from 'react-bootstrap/Row';
+import Table from 'react-bootstrap/Table';
 
 import '../../styles/simulation/simulation.css';
 
@@ -18,14 +19,15 @@ class Simulation extends React.Component {
 
         this.state = {
             account_value: initial_cash,
-            portfolio: {cash: {units: initial_cash, price: 1, market_value: initial_cash}},
+            portfolio: { cash: { units: initial_cash, price: 1, upDownPct: 0, market_value: initial_cash }, 'GOOGL': { units: 10, price: 1303.23, upDownPct: -0.0134, market_value: 13032.3}, 'AAPL': { units: 2, price: 305.50623234, upDownPct: 0.00932, market_value: 2 * 305.50623234}},
+            portfolio_tickers: ['AAPL', 'GOOGL'],
             stock_tickers: tickers,
             simulation_id: this.props.simulation.id,
             simulation_time: this.props.simulation.start_time * 1000,
             // time series
             quote_times: [],
             account_values: [],
-            stock_prices: Object.fromEntries(tickers.map(ticker => [ticker, []]))
+            stock_prices: {'AAPL': [300, 301, 302], 'GOOGL': [1305, 1302, 1303]} // Object.fromEntries(tickers.map(ticker => [ticker, []]))
         }
 
         // bind methods
@@ -175,6 +177,25 @@ class Simulation extends React.Component {
 
     render() {
 
+        // up/down colors
+        const upColor = '#198754'; // green
+        const downColor = '#dc3545'; // red
+
+        // portfolio table rows
+        const portfolio_table_rows = this.state.portfolio_tickers.map(t => 
+            <tr key={t}>
+                <td style={{ textAlign: 'left' }}>{t}</td>
+                <td style={{ textAlign: 'right', color: this.state.portfolio[t].upDownPct >= 0 ? upColor : downColor }}>
+                    {(100 * this.state.portfolio[t].upDownPct).toFixed(2)}%</td>
+                <td style={{ textAlign: 'right', color: this.state.portfolio[t].upDownPct >= 0 ? upColor : downColor }}>
+                    {this.formatDollarAmount(this.state.portfolio[t].price)}</td>
+                <td style={{ textAlign: 'center' }}>
+                    {this.state.portfolio[t].units}</td>
+                <td style={{ textAlign: 'right', color: '#ff6600'}}>
+                    ${this.formatDollarAmount(this.state.portfolio[t].market_value)}</td>
+            </tr>    
+        );
+
         return (
             <Container>
                 <Row> {/* Button Group and Time */}
@@ -210,7 +231,30 @@ class Simulation extends React.Component {
                 </Row>
                 <Row>
                 <Col> {/* Portfolio Chart */}
-                <div id="portfolio-chart"></div>              
+                    <div id="portfolio-chart"></div>
+                    <Row>
+                        <p style={{textAlign: 'right', color: '#ff6600'}}>
+                            Available cash: ${this.formatDollarAmount(this.state.portfolio.cash.market_value)}
+                        </p>
+                    </Row>     
+                    <Table
+                        id="portfolio-table"
+                        responsive="true"
+                    >
+                        <thead>
+                            <tr style={{ color: '#91ABBD'}}>
+                                <th style={{ textAlign: 'left' }}>Ticker</th>
+                                <th style={{ textAlign: 'right' }}>Change</th>
+                                <th style={{ textAlign: 'right' }}>Price</th>
+                                <th style={{ textAlign: 'center' }}>Shares</th>
+                                <th style={{ textAlign: 'right' }}>Market Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {portfolio_table_rows}
+                        </tbody>
+
+                    </Table>     
                 </Col>
                 <Col> {/* Stock List */}
                 Stock List
