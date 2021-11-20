@@ -13,6 +13,8 @@
       window.currentUser = <%= render("api/users/user.json.jbuilder", user: current_user).html_safe %>;
       window.currentSimulation = <%= render("api/simulations/simulation.json.jbuilder", simulation: current_simulation).html_safe %>;
     </script>
+
+    <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
   <% end %>
   </head>
 

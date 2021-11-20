@@ -23,6 +23,7 @@ class Simulation extends React.Component {
             simulation_id: this.props.simulation.id,
             simulation_time: this.props.simulation.start_time * 1000,
             // time series
+            quote_times: [],
             account_values: [],
             stock_prices: Object.fromEntries(tickers.map(ticker => [ticker, []]))
         }
@@ -38,6 +39,9 @@ class Simulation extends React.Component {
 
     startSimulation() {
         console.log('Start simulation');
+
+        // fake data for testing:
+        this.receiveTickUpdate();
     }
 
 
@@ -59,11 +63,115 @@ class Simulation extends React.Component {
     receiveTickUpdate() {
         // update simulation time, quotes and portfolio with data from new tick
 
-        this.setState({
+        const newSimulationTime = this.state.simulation_time + 1000;
+        const newAccountValue = this.state.account_value + (Math.random() - 0.5) * 10;
 
+        this.setState({
+            simulation_time: newSimulationTime,
+            account_value: newAccountValue,
+            quote_times: this.state.quote_times.concat(newSimulationTime),
+            account_values: this.state.account_values.concat(newAccountValue)
         });
     }
 
+
+    formatDollarAmount(num) {
+        // Return num with comma separators and 2 decimal places.
+        let numStr = Number(num.toFixed(2)).toLocaleString();
+
+        // ensure 2 decimal places
+        const parts = numStr.split('.');
+        if (parts.length == 1) {
+            numStr = numStr.concat('.00');
+        }
+        else if (parts[1].length == 1) {
+            numStr = numStr.concat('0');
+        }
+        return numStr
+    }
+
+
+    formatTimestampAsString(timestamp) {
+        // Return a string in format 'yyyy-mm-dd hh:mm:ss'
+        const d = new Date(timestamp);
+        const month = d.getMonth() + 1;
+        const day = d.getDate();
+        const monthStr = month < 10 ? '0'.concat(month) : String(month)
+        const dayStr = day < 10 ? '0'.concat(day) : String(day);
+
+        const datePart = String(d.getFullYear()) + '-' + monthStr + '-' + day;
+        const timePart = d.toLocaleTimeString('en-UK');
+        return datePart + ' ' + timePart;
+    }
+
+
+    componentDidMount() {
+
+        // poftfolio chart
+
+        const lineColor = this.state.account_value >= this.props.simulation.initial_cash ? '#198754' : '#dc3545';
+
+        const portfolioChartData = [
+            {
+                x: this.state.quote_times.map(time => this.formatTimestampAsString(time)),
+                y: this.state.account_values,
+                type: "scatter",
+                mode: "lines",
+                line: { color: lineColor }
+            }
+        ];
+
+        const portfolioChartLayout = {
+            title: 'Account Value: $' + this.formatDollarAmount(this.state.account_value),
+            titlefont: {
+                family: 'American Typewriter, serif',
+                color: '#ff6600'
+            },
+            bgcolor: 'red',
+            paper_bgcolor: '#091020',
+            plot_bgcolor: '#14171C',
+            margin: {
+                t: 60,
+                r: 30,
+                l: 60
+            },
+            separator: ',',
+            showLegend: false,
+            xaxis : {
+                title: 'Time',
+                titlefont: {
+                    family: 'American Typewriter, serif',
+                    color: '#91ABBD'
+                },
+                tickfont: { color: '#91ABBD' },
+                tickcolor: '#91ABBD'
+            },
+            yaxis: {
+                autotypenumbers: 'strict',
+                minexponent: 9,
+                titlefont: {
+                    family: 'American Typewriter, serif'
+                },
+                tickfont: { color: '#91ABBD' },
+                tickcolor: '#91ABBD',
+                tickformat: "$,.0f"
+            },
+        };
+
+        // can be put in state
+        const portfolioChartConfig = {
+            displayModeBar: false,
+            scrollZoom: true,
+        };
+
+        //const plotElement = document.getElementById('portfolio-chart');
+        Plotly.react('portfolio-chart', portfolioChartData, portfolioChartLayout, portfolioChartConfig);
+
+    }
+
+    componentDidUpdate() {
+        this.componentDidMount();
+    }
 
     render() {
 
@@ -102,7 +210,7 @@ class Simulation extends React.Component {
                 </Row>
                 <Row>
                 <Col> {/* Portfolio Chart */}
-                Chart                
+                <div id="portfolio-chart"></div>              
                 </Col>
                 <Col> {/* Stock List */}
                 Stock List
