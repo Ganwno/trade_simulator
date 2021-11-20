@@ -7528,26 +7528,21 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     super(props);
     const initial_cash = this.props.simulation.initial_cash;
     const tickers = this.props.simulation.security_set.split('_');
+    const pre_open_points = 1;
     this.state = {
       account_value: initial_cash,
       portfolio: {
         cash: {
           units: initial_cash,
-          price: 1,
-          upDownPct: 0,
           market_value: initial_cash
         },
         'GOOGL': {
           units: 10,
-          price: 1303.23,
-          upDownPct: -0.0134,
-          market_value: 13032.3
+          market_value: 13030.0
         },
         'AAPL': {
           units: 2,
-          price: 305.50623234,
-          upDownPct: 0.00932,
-          market_value: 2 * 305.50623234
+          market_value: 604
         }
       },
       portfolio_tickers: ['AAPL', 'GOOGL'],
@@ -7555,12 +7550,18 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
       simulation_id: this.props.simulation.id,
       simulation_time: this.props.simulation.start_time * 1000,
       // time series
-      quote_times: [],
-      account_values: [],
+      quote_times: new Array(pre_open_points).fill(0).map((_, i) => (this.props.simulation.start_time - pre_open_points + i) * 1000),
+      account_values: new Array(pre_open_points).fill(initial_cash),
       stock_prices: {
-        'AAPL': [300, 301, 302],
-        'GOOGL': [1305, 1302, 1303]
-      } // Object.fromEntries(tickers.map(ticker => [ticker, []]))
+        'AAPL': {
+          price: [300, 301, 302],
+          upDownPct: 0.006667
+        },
+        'GOOGL': {
+          price: [1305, 1302, 1303],
+          upDownPct: -0.00153
+        }
+      } // Object.fromEntries(tickers.map(ticker => [ticker, {price: {}, upDownPct: 0}]))
 
     }; // bind methods
 
@@ -7664,7 +7665,9 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         tickfont: {
           color: '#91ABBD'
         },
-        tickcolor: '#91ABBD'
+        tickcolor: '#91ABBD',
+        tickformat: '%-I:%M:%S',
+        hoverformat: '%-I:%M:%S %p'
       },
       yaxis: {
         autotypenumbers: 'strict',
@@ -7708,14 +7711,14 @@ class Simulation extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     }, t), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
       style: {
         textAlign: 'right',
-        color: this.state.portfolio[t].upDownPct >= 0 ? upColor : downColor
+        color: this.state.stock_prices[t].upDownPct >= 0 ? upColor : downColor
       }
-    }, (100 * this.state.portfolio[t].upDownPct).toFixed(2), "%"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+    }, (100 * this.state.stock_prices[t].upDownPct).toFixed(2), "%"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
       style: {
         textAlign: 'right',
-        color: this.state.portfolio[t].upDownPct >= 0 ? upColor : downColor
+        color: this.state.stock_prices[t].upDownPct >= 0 ? upColor : downColor
       }
-    }, this.formatDollarAmount(this.state.portfolio[t].price)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
+    }, this.formatDollarAmount(this.state.stock_prices[t].price[2])), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("td", {
       style: {
         textAlign: 'center'
       }
