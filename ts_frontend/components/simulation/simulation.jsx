@@ -348,7 +348,7 @@ class Simulation extends React.Component {
                         values={this.state.stock_tickers}
                         onChange={({ oldIndex, newIndex}) => {this.setState({stock_tickers: arrayMove(this.state.stock_tickers, oldIndex, newIndex)})}}
                         renderList={({ children, props}) => <ul {...props}>{children}</ul>}
-                        renderItem={({ value, props}) => <li {...props}>{value}</li>}
+                        renderItem={({ value, props }) => <li {...props}>{value}, Price: {this.formatDollarAmount(this.state.stock_prices[value].price[this.state.simulation_time])}, Change: {(100 * this.state.stock_prices[value].upDownPct).toFixed(2)}%</li>}
                     />
                 </Col>
                 </Row>
