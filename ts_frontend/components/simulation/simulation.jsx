@@ -8,6 +8,7 @@ import DropdownButton from 'react-bootstrap/DropdownButton';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 
+import {List, arrayMove} from 'react-movable';
 import '../../styles/simulation/simulation.css';
 
 class Simulation extends React.Component {
@@ -343,6 +344,12 @@ class Simulation extends React.Component {
                 </Col>
                 <Col> {/* Stock List */}
                 Stock List
+                    <List
+                        values={this.state.stock_tickers}
+                        onChange={({ oldIndex, newIndex}) => {this.setState({stock_tickers: arrayMove(this.state.stock_tickers, oldIndex, newIndex)})}}
+                        renderList={({ children, props}) => <ul {...props}>{children}</ul>}
+                        renderItem={({ value, props}) => <li {...props}>{value}</li>}
+                    />
                 </Col>
                 </Row>
             </Container>
