@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
-import DropdownButton from 'react-bootstrap/DropdownButton';
+import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Table from 'react-bootstrap/Table';
 
@@ -24,6 +24,7 @@ class Simulation extends React.Component {
             portfolio: { cash: { units: initial_cash, market_value: initial_cash }, 'GOOGL': { units: 10, market_value: 13030.0}, 'AAPL': { units: 2, market_value: 604}, 'F': { units: 1, market_value: 20 }},
             portfolio_tickers: ['AAPL', 'F', 'GOOGL'],
             stock_tickers: tickers,
+            shares: Object.fromEntries(tickers.map(ticker => [ticker, 0])),
             simulation_id: this.props.simulation.id,
             simulation_time: (this.props.simulation.start_time - 1) * 1000,
             // time series
@@ -31,8 +32,14 @@ class Simulation extends React.Component {
             account_values: new Array(pre_open_points).fill(initial_cash),
             stock_prices: Object.fromEntries(tickers.map(ticker => [ticker, {price: {}, upDownPct: 0}])),
             // start/pause/stop states
+            simulationHasStarted: false,
             simulationIsRunning: false,
-            simulationIsStopped: false
+            simulationIsStopped: false,
+            // styles
+            upColor: '#198754',   // green
+            downColor: '#dc3545', // red
+            // trades
+            tradeErrorMsg: '',
         }
 
         // bind methods
@@ -41,11 +48,15 @@ class Simulation extends React.Component {
         this.stopSimulation = this.stopSimulation.bind(this);
         this.requestTickUpdates = this.requestTickUpdates.bind(this);
         this.receiveTickUpdate = this.receiveTickUpdate.bind(this);
+        this.handleSharesInput = this.handleSharesInput.bind(this);
+        this.handleBuy = this.handleBuy.bind(this);
+        this.handleSell = this.handleSell.bind(this);
     }
 
 
     startSimulation() {
         this.setState({
+            simulationHasStarted: true,
             simulationIsRunning: true
         }, () => {
             this.requestTickUpdates();
@@ -145,6 +156,8 @@ class Simulation extends React.Component {
 
     formatDollarAmount(num) {
         // Return num with comma separators and 2 decimal places.
+        if (num === 0) {return '0'}
+
         if (!num) {return ''}
 
         let numStr = Number(num.toFixed(2)).toLocaleString();
@@ -172,6 +185,42 @@ class Simulation extends React.Component {
         const datePart = String(d.getFullYear()) + '-' + monthStr + '-' + day;
         const timePart = d.toLocaleTimeString('en-UK');
         return datePart + ' ' + timePart;
+    }
+
+
+    handleSharesInput(ticker, e) {
+        let newShares = this.state.shares;
+        newShares[ticker] = e.target.value;
+        this.setState({ shares: newShares });
+    }
+
+
+    handleBuy(ticker, shares, time) {
+
+        console.log('Buy ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
+
+        const executionTime = time + this.props.simulation.exec_delay_sec;
+
+        if (executionTime > this.props.simulation.end_time) {
+            // can't be filled after end time
+            this.setState({ tradeErrorMsg: 'Order cannot be filled after simulation end.'});
+            return;
+        }
+
+        // wait to receive price
+        while (typeof this.state.stock_prices[ticker][executionTime] === 'undefined') {
+            setTimeout(() => {}, 1000);
+        }
+
+        const tradePrice = this.state.stock_prices[ticker][executionTime];
+        const totalCost = shares * tradePrice;
+
+    }
+
+
+    handleSell(ticker, shares, time) {
+        console.log('Sell ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
+
     }
 
 
@@ -263,17 +312,13 @@ class Simulation extends React.Component {
 
     render() {
 
-        // up/down colors
-        const upColor = '#198754'; // green
-        const downColor = '#dc3545'; // red
-
         // portfolio table rows
         const portfolio_table_rows = this.state.portfolio_tickers.map(t => 
             <tr key={t}>
                 <td style={{ textAlign: 'left' }}>{t}</td>
-                <td style={{ textAlign: 'right', color: this.state.stock_prices[t].upDownPct >= 0 ? upColor : downColor }}>
+                <td style={{ textAlign: 'right', color: this.state.stock_prices[t].upDownPct >= 0 ? this.state.upColor : this.state.downColor }}>
                     {(100 * this.state.stock_prices[t].upDownPct).toFixed(2)}%</td>
-                <td style={{ textAlign: 'right', color: this.state.stock_prices[t].upDownPct >= 0 ? upColor : downColor }}>
+                <td style={{ textAlign: 'right', color: this.state.stock_prices[t].upDownPct >= 0 ? this.state.upColor : this.state.downColor }}>
                     {this.formatDollarAmount(this.state.stock_prices[t].price[this.state.simulation_time])}</td>
                 <td style={{ textAlign: 'center' }}>
                     {this.state.portfolio[t].units}</td>
@@ -343,13 +388,101 @@ class Simulation extends React.Component {
                     </Table>     
                 </Col>
                 <Col> {/* Stock List */}
-                Stock List
+                Trade
                     <List
                         values={this.state.stock_tickers}
                         onChange={({ oldIndex, newIndex}) => {this.setState({stock_tickers: arrayMove(this.state.stock_tickers, oldIndex, newIndex)})}}
-                        renderList={({ children, props}) => <ul {...props}>{children}</ul>}
-                        renderItem={({ value, props }) => <li {...props}>{value}, Price: {this.formatDollarAmount(this.state.stock_prices[value].price[this.state.simulation_time])}, Change: {(100 * this.state.stock_prices[value].upDownPct).toFixed(2)}%</li>}
+                        transitionDuration={0}
+                            renderList={({ children, props }) => <ul {...props} style={{ listStyleType: "none", margin: 0, padding: 0 }}>{children}</ul>}
+                        renderItem={({ value, props }) =>
+                            <li {...props}>
+                            <Container
+                                fluid
+                                className="quote-display-container"
+                            >
+                                <Row
+                                    className="align-items-center"
+                                    style={{ color: "#91ABBD" }}
+                                >
+                                    <Col>
+                                        {value}
+                                    </Col>
+                                    <Col
+                                        style={{ color: this.state.stock_prices[value].upDownPct >= 0 ? this.state.upColor : this.state.downColor }}
+                                    >
+                                        <Row>
+                                            {this.formatDollarAmount(this.state.stock_prices[value].price[this.state.simulation_time])}
+                                        </Row>
+                                        <Row>
+                                            {(100 * this.state.stock_prices[value].upDownPct).toFixed(2)}%
+                                        </Row>
+                                    </Col>
+                                    <Col>
+                                        <Form.Group
+                                            as={Col}
+                                        >
+                                            <Row>
+                                            <Form.Label
+                                                column="sm"
+                                                style={{textAlign: "left",
+                                                        paddingLeft: 0,
+                                                        paddingRight: 0,
+                                                        paddingTop: 0,
+                                                        paddingBottom: 0,
+                                                        marginTop: 0,
+                                                        marginBottom: 0}}
+                                            >Shares:</Form.Label>
+                                            </Row>
+                                            <Row>
+                                                <Form.Control
+                                                    id="shares-input"
+                                                    type="number"
+                                                    min="0"
+                                                    value={this.state.shares[value]}
+                                                    onChange={(e) => this.handleSharesInput(value, e)}
+                                                />
+                                            </Row>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col>
+                                        <Row>
+                                            Est. price
+                                        </Row>
+                                        <Row
+                                            style={{ color: this.state.shares[value] > 0 ? "#ff6600" : "#91ABBD" }}
+                                        >
+                                            ${this.formatDollarAmount(this.state.shares[value] * this.state.stock_prices[value].price[this.state.simulation_time])}
+                                        </Row>
+                                    </Col>
+                                    <Col>
+                                        <ButtonGroup
+                                            vertical
+                                            size="sm"
+                                        >
+                                            <Button
+                                                id="button-buy"
+                                                active={true}
+                                                variant="primary"
+                                                disabled={this.state.simulationHasStarted && !this.state.simulationIsRunning}
+                                                onClick={() => {this.handleBuy(value, this.state.shares[value], this.state.simulation_time)}}
+                                            >Buy</Button>
+                                            <Button
+                                                id="button-sell"
+                                                active={true}
+                                                variant="secondary"
+                                                    disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
+                                                        (this.state.portfolio_tickers.findIndex(t => t === value) === -1) ||
+                                                        (this.state.shares[value] > this.state.portfolio[value].units)}
+                                                    onClick={() => {this.handleSell(value, this.state.shares[value], this.state.simulation_time)}}
+                                            >Sell</Button>
+                                        </ButtonGroup>
+                                    </Col>
+                                </Row>
+                            </Container>
+                            </li>
+                        }
                     />
+                    {/* End of moveable List */}
                 </Col>
                 </Row>
             </Container>
