@@ -21,8 +21,8 @@ class Simulation extends React.Component {
 
         this.state = {
             account_value: initial_cash,
-            portfolio: { cash: { units: initial_cash, market_value: initial_cash }, 'GOOGL': { units: 10, market_value: 13030.0}, 'AAPL': { units: 2, market_value: 604}, 'F': { units: 1, market_value: 20 }},
-            portfolio_tickers: ['AAPL', 'F', 'GOOGL'],
+            portfolio: { cash: { units: initial_cash, market_value: initial_cash }},
+            portfolio_tickers: [],
             stock_tickers: tickers,
             shares: Object.fromEntries(tickers.map(ticker => [ticker, 0])),
             simulation_id: this.props.simulation.id,
@@ -115,7 +115,7 @@ class Simulation extends React.Component {
  
         if (!response.tick || !response.quotes) {
             console.log('Error receiving ticks');
-            if (errors) { console.log(errors); }
+            if (response.errors) { console.log(response.errors); }
             this.pauseSimulation();
         }
 
@@ -195,31 +195,142 @@ class Simulation extends React.Component {
     }
 
 
-    handleBuy(ticker, shares, time) {
+    getTradeCost(ticker, shares, time) {
+        const executionTime = time + 1000 * this.props.simulation.exec_delay_sec;
 
-        console.log('Buy ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
-
-        const executionTime = time + this.props.simulation.exec_delay_sec;
-
-        if (executionTime > this.props.simulation.end_time) {
-            // can't be filled after end time
-            this.setState({ tradeErrorMsg: 'Order cannot be filled after simulation end.'});
-            return;
+        if (executionTime > 1000 * this.props.simulation.end_time) {
+            this.setState({ tradeErrorMsg: 'Order cannot be completed after end time.' });
+            return -1;
         }
 
         // wait to receive price
-        while (typeof this.state.stock_prices[ticker][executionTime] === 'undefined') {
-            setTimeout(() => {}, 1000);
+        let count = 0;
+        while ((typeof this.state.stock_prices[ticker].price[executionTime] === 'undefined') && (count < 5)) {
+            setTimeout(() => { }, 1000);
+            ++count;
         }
 
-        const tradePrice = this.state.stock_prices[ticker][executionTime];
-        const totalCost = shares * tradePrice;
+        if (typeof this.state.stock_prices[ticker].price[executionTime] === 'undefined') {
+            console.log('Reached max wait time without getting quote.');
+            return;
+        }
+
+        const tradePrice = this.state.stock_prices[ticker].price[executionTime];
+        return shares * tradePrice;
+    }
+
+
+    handleBuy(ticker, shares, time) {
+        console.log('Buy ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
+
+        let tradeCost = this.getTradeCost(ticker, shares, time);
+        if (tradeCost === -1) {
+            // error getting trade cost
+            return;
+        }
+
+        tradeCost += this.props.simulation.transaction_cost;
+        console.log('Trade cost: $' + this.formatDollarAmount(tradeCost));
+
+        // insufficient funds
+        if (tradeCost > this.state.portfolio.cash.market_value) {
+            this.setState({ tradeErrorMsg: 'Available cash $' + this.formatDollarAmount(this.state.portfolio.cash.market_value)
+                + ' insufficient to buy ' + shares.toString()
+                + ' shares at total cost $' + this.formatDollarAmount(tradeCost) + '.'},
+                console.log(this.state.tradeErrorMsg));
+            return;
+        }
+
+        // update portfolio
+        const newAvailableCash = this.state.portfolio.cash.market_value - tradeCost;
+        let newPortfolio = this.state.portfolio;
+        let newPortfolioTickers = this.state.portfolio_tickers;
+
+        newPortfolio.cash.units = newAvailableCash;
+        newPortfolio.cash.market_value = newAvailableCash;
+
+        if (newPortfolio[ticker]) {
+            // ticker already in portfolio
+            newPortfolio[ticker].units += shares;
+            newPortfolio[ticker].market_value = newPortfolio[ticker].units * this.state.stock_prices[ticker].price[this.state.simulation_time];
+        }
+        else {
+            // add ticker to portfolio
+            let i = 0;
+            while (ticker > this.state.portfolio_tickers[i]) { ++i; }
+            newPortfolioTickers.splice(i, 0, ticker);
+
+            newPortfolio[ticker] = { units: shares, market_value: shares * this.state.stock_prices[ticker].price[this.state.simulation_time]};
+        }
+
+        // clear old order
+        let newShares = this.state.shares;
+        newShares[ticker] = 0;
+
+        // update state
+        this.setState({
+            portfolio: newPortfolio,
+            portfolio_tickers: newPortfolioTickers,
+            shares: newShares
+        });
 
     }
 
 
     handleSell(ticker, shares, time) {
         console.log('Sell ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
+
+        let tradeCost = this.getTradeCost(ticker, shares, time);
+        if (tradeCost === -1) {
+            // error getting trade cost
+            return;
+        }
+
+        tradeCost -= this.props.simulation.transaction_cost;
+        console.log('Trade cost: $' + this.formatDollarAmount(tradeCost));
+
+        // insufficient shares
+        if ((this.state.portfolio_tickers.findIndex((t) => t === ticker) === -1) || (shares > this.state.portfolio[ticker].units)) {
+            this.setState({
+                tradeErrorMsg: 'Cannot sell ' + shares.toString() + ' shares of ' + ticker + '. '
+                    + 'Insufficient shares of ' + ticker + ' held in portfolio.'
+            }, console.log(this.state.tradeErrorMsg));
+            return;
+        }
+
+        // update portfolio
+        const newAvailableCash = this.state.portfolio.cash.market_value + tradeCost;
+        let newPortfolio = this.state.portfolio;
+        let newPortfolioTickers = this.state.portfolio_tickers;
+
+        newPortfolio.cash.units = newAvailableCash;
+        newPortfolio.cash.market_value = newAvailableCash;
+
+        // ticker already in portfolio
+        newPortfolio[ticker].units -= shares;
+
+        if (newPortfolio[ticker].units > 0) {
+            // ticker still in portfolio
+            newPortfolio[ticker].market_value = newPortfolio[ticker].units * this.state.stock_prices[ticker].price[this.state.simulation_time];
+        }
+        else {
+            // remove ticker from portfolio
+            const i = this.state.portfolio_tickers.findIndex((t) => t === ticker);
+            newPortfolioTickers.splice(i, 1);
+
+            delete newPortfolio[ticker];
+        }
+
+        // clear old order
+        let newShares = this.state.shares;
+        newShares[ticker] = 0;
+
+        // update state
+        this.setState({
+            portfolio: newPortfolio,
+            portfolio_tickers: newPortfolioTickers,
+            shares: newShares
+        });
 
     }
 
@@ -463,8 +574,9 @@ class Simulation extends React.Component {
                                                 id="button-buy"
                                                 active={true}
                                                 variant="primary"
-                                                disabled={this.state.simulationHasStarted && !this.state.simulationIsRunning}
-                                                onClick={() => {this.handleBuy(value, this.state.shares[value], this.state.simulation_time)}}
+                                                disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
+                                                        (this.state.shares[value] === '0')}
+                                                onClick={() => {this.handleBuy(value, Number(this.state.shares[value]), this.state.simulation_time)}}
                                             >Buy</Button>
                                             <Button
                                                 id="button-sell"
@@ -472,8 +584,8 @@ class Simulation extends React.Component {
                                                 variant="secondary"
                                                     disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
                                                         (this.state.portfolio_tickers.findIndex(t => t === value) === -1) ||
-                                                        (this.state.shares[value] > this.state.portfolio[value].units)}
-                                                    onClick={() => {this.handleSell(value, this.state.shares[value], this.state.simulation_time)}}
+                                                        (Number(this.state.shares[value]) > this.state.portfolio[value].units)}
+                                                    onClick={() => {this.handleSell(value, Number(this.state.shares[value]), this.state.simulation_time)}}
                                             >Sell</Button>
                                         </ButtonGroup>
                                     </Col>
