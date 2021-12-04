@@ -506,7 +506,7 @@ class Simulation extends React.Component {
                         transitionDuration={0}
                             renderList={({ children, props }) => <ul {...props} style={{ listStyleType: "none", margin: 0, padding: 0 }}>{children}</ul>}
                         renderItem={({ value, props }) =>
-                            <li {...props}>
+                            <li {...props} style={{ ...props.style, listStyleType: "none" }}>
                             <Container
                                 fluid
                                 className="quote-display-container"
