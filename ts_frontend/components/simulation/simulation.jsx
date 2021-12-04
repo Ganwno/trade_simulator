@@ -11,6 +11,10 @@ import Table from 'react-bootstrap/Table';
 import {List, arrayMove} from 'react-movable';
 import '../../styles/simulation/simulation.css';
 
+// trade actions
+const BUY = 'BUY';
+const SELL = 'SELL';
+
 class Simulation extends React.Component {
     constructor(props) {
         super(props)
@@ -27,6 +31,7 @@ class Simulation extends React.Component {
             shares: Object.fromEntries(tickers.map(ticker => [ticker, 0])),
             simulation_id: this.props.simulation.id,
             simulation_time: (this.props.simulation.start_time - 1) * 1000,
+            order_queue: [],
             // time series
             quote_times: new Array(pre_open_points).fill(0).map((_, i) => (this.props.simulation.start_time - pre_open_points + i) * 1000),
             account_values: new Array(pre_open_points).fill(initial_cash),
@@ -49,6 +54,7 @@ class Simulation extends React.Component {
         this.requestTickUpdates = this.requestTickUpdates.bind(this);
         this.receiveTickUpdate = this.receiveTickUpdate.bind(this);
         this.handleSharesInput = this.handleSharesInput.bind(this);
+        this.fulfillTradeOrders = this.fulfillTradeOrders.bind(this);
         this.handleBuy = this.handleBuy.bind(this);
         this.handleSell = this.handleSell.bind(this);
     }
@@ -92,6 +98,9 @@ class Simulation extends React.Component {
                 method: 'GET',
                 data: { tick: { simulation_id: this.props.simulation.id, timestamp: (this.state.simulation_time / 1000) + 1} },
                 complete: () => {
+                    // fulfill trade orders
+                    this.fulfillTradeOrders();
+
                     // schedule the next request only when the current one is complete
                     setTimeout(this.requestTickUpdates, 1000);
                 },
@@ -140,9 +149,6 @@ class Simulation extends React.Component {
             newPortfolio[t].market_value = newPortfolio[t].units * newStockPrices[t].price[newSimulationTime];
             newAccountValue += newPortfolio[t].market_value;
         }
-
-        // fake data for testing:
-        //const newAccountValue = this.state.account_value + (Math.random() - 0.5) * 10;
 
         this.setState({
             simulation_time: newSimulationTime,
@@ -195,28 +201,37 @@ class Simulation extends React.Component {
     }
 
 
+    fulfillTradeOrders() {
+        let i = 0;
+        for (const order of this.state.order_queue) {
+            const executionTime = order.time + 1000 * this.props.simulation.exec_delay_sec;
+            if (executionTime > this.state.simulation_time) {
+                break;
+            }
+
+            switch (order.action) {
+                case BUY:
+                    this.handleBuy(order.ticker, order.shares, executionTime);
+                    break;
+
+                case SELL:
+                    this.handleSell(order.ticker, order.shares, executionTime);
+                    break;
+            }
+            ++i;
+        }
+
+        let newOrderQueue = this.state.order_queue;
+        newOrderQueue.splice(0, i);
+
+        this.setState({
+            order_queue: newOrderQueue
+        });
+    }
+
+
     getTradeCost(ticker, shares, time) {
-        const executionTime = time + 1000 * this.props.simulation.exec_delay_sec;
-
-        if (executionTime > 1000 * this.props.simulation.end_time) {
-            this.setState({ tradeErrorMsg: 'Order cannot be completed after end time.' });
-            return -1;
-        }
-
-        // wait to receive price
-        let count = 0;
-        while ((typeof this.state.stock_prices[ticker].price[executionTime] === 'undefined') && (count < 5)) {
-            setTimeout(() => { }, 1000);
-            ++count;
-        }
-
-        if (typeof this.state.stock_prices[ticker].price[executionTime] === 'undefined') {
-            console.log('Reached max wait time without getting quote.');
-            return;
-        }
-
-        const tradePrice = this.state.stock_prices[ticker].price[executionTime];
-        return shares * tradePrice;
+        return shares * this.state.stock_prices[ticker].price[time];
     }
 
 
@@ -224,11 +239,6 @@ class Simulation extends React.Component {
         console.log('Buy ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
 
         let tradeCost = this.getTradeCost(ticker, shares, time);
-        if (tradeCost === -1) {
-            // error getting trade cost
-            return;
-        }
-
         tradeCost += this.props.simulation.transaction_cost;
         console.log('Trade cost: $' + this.formatDollarAmount(tradeCost));
 
@@ -281,11 +291,6 @@ class Simulation extends React.Component {
         console.log('Sell ' + shares.toString() + ' shares ' + ticker + ' at ' + this.formatTimestampAsString(time));
 
         let tradeCost = this.getTradeCost(ticker, shares, time);
-        if (tradeCost === -1) {
-            // error getting trade cost
-            return;
-        }
-
         tradeCost -= this.props.simulation.transaction_cost;
         console.log('Trade cost: $' + this.formatDollarAmount(tradeCost));
 
@@ -557,7 +562,7 @@ class Simulation extends React.Component {
                                     </Col>
                                     <Col>
                                         <Row>
-                                            Est. price
+                                            Price
                                         </Row>
                                         <Row
                                             style={{ color: this.state.shares[value] > 0 ? "#ff6600" : "#91ABBD" }}
@@ -576,7 +581,17 @@ class Simulation extends React.Component {
                                                 variant="primary"
                                                 disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
                                                         (this.state.shares[value] === '0')}
-                                                onClick={() => {this.handleBuy(value, Number(this.state.shares[value]), this.state.simulation_time)}}
+                                                    onClick={() => {
+                                                        this.setState({
+                                                            order_queue: this.state.order_queue.concat(
+                                                                {
+                                                                    action: BUY,
+                                                                    ticker: value,
+                                                                    shares: Number(this.state.shares[value]),
+                                                                    time: this.state.simulation_time
+                                                                })
+                                                        })
+                                                    }}
                                             >Buy</Button>
                                             <Button
                                                 id="button-sell"
@@ -585,7 +600,17 @@ class Simulation extends React.Component {
                                                     disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
                                                         (this.state.portfolio_tickers.findIndex(t => t === value) === -1) ||
                                                         (Number(this.state.shares[value]) > this.state.portfolio[value].units)}
-                                                    onClick={() => {this.handleSell(value, Number(this.state.shares[value]), this.state.simulation_time)}}
+                                                    onClick={() => {
+                                                        this.setState({
+                                                            order_queue: this.state.order_queue.concat(
+                                                                {
+                                                                    action: SELL,
+                                                                    ticker: value,
+                                                                    shares: Number(this.state.shares[value]),
+                                                                    time: this.state.simulation_time
+                                                                })
+                                                        })
+                                                    }}
                                             >Sell</Button>
                                         </ButtonGroup>
                                     </Col>
