@@ -54,8 +54,6 @@ class Homepage extends React.Component {
                 <Container>
                     <Col>
                         <Row>
-                            <p>Homepage</p>
-
                             <Col>
                                 <Button
                                     className="button-submit"

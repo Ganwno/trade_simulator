@@ -1,4 +1,5 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
@@ -85,7 +86,15 @@ class Simulation extends React.Component {
             simulationIsRunning: false,
             simulationIsStopped: true
         },
-        console.log('Stop simulation')
+        // Delete ticks from database and redirect to homepage
+        () => {
+            console.log('Stop simulation');
+            const simulation = {
+                id: this.props.simulation.id,
+                session_token: this.props.user.session_token
+            };
+            this.props.closeCurrentSimulation(simulation);
+            }
         );
     }
 
@@ -342,6 +351,10 @@ class Simulation extends React.Component {
 
     componentDidMount() {
 
+        if (!this.props.simulation) {
+            return;
+        }
+
         if (this.state.simulation_time < this.props.simulation.start_time * 1000) {
             // send request for first tick, allow some time for database to load
             setTimeout(() =>
@@ -427,6 +440,11 @@ class Simulation extends React.Component {
     }
 
     render() {
+
+        // Redirect to homepage if simulation is stopped
+        if (!this.props.simulation) {
+            return <Redirect to="/homepage" />;
+        }
 
         // portfolio table rows
         const portfolio_table_rows = this.state.portfolio_tickers.map(t => 

@@ -17,7 +17,7 @@ end
 
 
 def self.delete_by_timestamp(simulation_id, timestamp)
-    tick = Tick.find_by_simulation_id(simulation_id, timestamp)
+    tick = Tick.find_by_timestamp(simulation_id, timestamp)
     tick.delete
 end
 
@@ -35,7 +35,7 @@ end
 
 
 def self.delete_tick_data(simulation_id, start_time, end_time)
-    (start_time..end_time).each do |timestamp|
+    (start_time..end_time + 60).each do |timestamp|
         Tick.delete_by_timestamp(simulation_id, timestamp)
     end
 end

@@ -34,9 +34,11 @@ class Api::SimulationsController < ApplicationController
     def destroy
         # Tear down TickData
         @simulation = Simulation.find_by_simulation_id(simulation_id[:id])
-        Tick.delete_tick_data(@simulation.id, @simulation.start_time, @simulation.end_time)
-
+        if (simulation_id[:session_token] == @simulation.session_token)
+            Tick.delete_tick_data(@simulation.id, @simulation.start_time, @simulation.end_time)
+        end
         # wrap up simulation
+        head :no_content
     end
 
 
@@ -57,7 +59,8 @@ class Api::SimulationsController < ApplicationController
 
     def simulation_id
         params.require(:simulation).permit(
-            :id
+            :id,
+            :session_token
         )
     end
 

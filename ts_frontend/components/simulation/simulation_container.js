@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { closeCurrentSimulation } from '../../actions/simulation';
 import Simulation from './simulation';
 
 const mapStateToProps = state => ({
@@ -6,4 +7,8 @@ const mapStateToProps = state => ({
     simulation: state.simulation.currentSimulation
 });
 
-export default connect(mapStateToProps)(Simulation);
+const mapDispatchToProps = dispatch => ({
+    closeCurrentSimulation: formSimulation => dispatch(closeCurrentSimulation(formSimulation))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Simulation);
