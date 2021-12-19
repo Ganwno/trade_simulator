@@ -1,0 +1,1 @@
+json.partial! 'api/simulation_summary/simulation_summary', locals: {simulationSummary: @simulationSummary}
