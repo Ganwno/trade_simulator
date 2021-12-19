@@ -94,6 +94,15 @@ class Simulation extends React.Component {
                 session_token: this.props.user.session_token
             };
             this.props.closeCurrentSimulation(simulation);
+
+            const simulationSummary = {
+                simulation_id: this.props.simulation.id,
+                session_token: this.props.user.session_token,
+                username: this.props.user.username,
+                final_cash: Math.round(this.state.account_value * 100) / 100,
+                stopped_time: this.state.simulation_time / 1000
+            }
+            this.props.createSimulationSummary(simulationSummary);
             }
         );
     }
