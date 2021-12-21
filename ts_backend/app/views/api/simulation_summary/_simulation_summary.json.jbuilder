@@ -6,5 +6,6 @@ json.simulationSummary do
     json.tickers simulationSummary.simulation.security_set
     json.start_time simulationSummary.start_time
     json.stopped_time simulationSummary.stopped_time
+    json.created_at simulationSummary.created_at
 end
 json.errors simulationSummary.errors.messages
