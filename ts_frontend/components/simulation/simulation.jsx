@@ -607,6 +607,7 @@ class Simulation extends React.Component {
                                                 active={true}
                                                 variant="primary"
                                                 disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
+                                                        (!this.state.stock_prices[value].price[this.state.simulation_time]) ||
                                                         (this.state.shares[value] === '0')}
                                                     onClick={() => {
                                                         this.setState({
@@ -626,6 +627,7 @@ class Simulation extends React.Component {
                                                 variant="secondary"
                                                     disabled={(this.state.simulationHasStarted && !this.state.simulationIsRunning) ||
                                                         (this.state.portfolio_tickers.findIndex(t => t === value) === -1) ||
+                                                        (!this.state.stock_prices[value].price[this.state.simulation_time]) ||
                                                         (Number(this.state.shares[value]) > this.state.portfolio[value].units)}
                                                     onClick={() => {
                                                         this.setState({

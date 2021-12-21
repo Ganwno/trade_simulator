@@ -35,7 +35,10 @@ class Api::SimulationsController < ApplicationController
         # Tear down TickData
         @simulation = Simulation.find_by_simulation_id(simulation_id[:id])
         if (simulation_id[:session_token] == @simulation.session_token)
-            Tick.delete_tick_data(@simulation.id, @simulation.start_time, @simulation.end_time)
+            # Use a new Thread so that the page can redirect while db is being cleaned up
+            Thread.new do
+                Tick.delete_tick_data(@simulation.id, @simulation.start_time, @simulation.end_time)
+            end
         end
         # wrap up simulation
         head :no_content
