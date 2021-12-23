@@ -10,10 +10,15 @@ class Logout extends React.Component {
         this.state = {};
 
         this.logout = this.props.logoutUser.bind(this);
+        this.clearAllSimulationSummaries = this.props.clearAllSimulationSummaries.bind(this);
+    }
+
+    componentDidMount(){
+        this.clearAllSimulationSummaries();
     }
 
     render() {
-
+        
         this.logout();
 
         return (

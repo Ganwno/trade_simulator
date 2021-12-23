@@ -1,4 +1,4 @@
-import { RECEIVE_SIMULATION_SUMMARY, RECEIVE_SIMULATION_SUMMARIES } from "../actions/simulation_summary";
+import { RECEIVE_SIMULATION_SUMMARY, RECEIVE_SIMULATION_SUMMARIES, CLEAR_SIMULATION_SUMMARIES } from "../actions/simulation_summary";
 
 // default state
 const _nullSimulationSummary = {
@@ -17,6 +17,9 @@ export default (state = _nullSimulationSummary, action) => {
 
         case RECEIVE_SIMULATION_SUMMARIES:
             return Object.assign({}, { allSimulationSummaries: action.simulation_summaries });
+
+        case CLEAR_SIMULATION_SUMMARIES:
+            return _nullSimulationSummary;
 
         default:
             return state;
