@@ -87,20 +87,48 @@ class Homepage extends React.Component {
         }
 
         // Previous simulation table rows
-        const simulation_table_rows = (!this.props.simulationSummaries) || (this.props.simulationSummaries.length === 0) ? <tr key={'empty'}><td colSpan="7"><center>{'...No data available...'}</center></td></tr>
-            : this.props.simulationSummaries.slice().reverse().map(s => 
-            <tr key={s.simulationSummary.created_at}>
-                <td style={{ textAlign: 'left', color: s.simulationSummary.win_loss_amount >= 0 ? this.state.upColor : this.state.downColor }}
-                    >{(s.simulationSummary.win_loss_amount >= 0 ? 'Gained' : 'Lost') 
-                    + ' ' + this.formatDollarAmount(s.simulationSummary.win_loss_amount)}</td>
-                <td style={{ textAlign: 'left' }}>{this.formatDollarAmount(s.simulationSummary.initial_cash)}</td>
-                <td style={{ textAlign: 'left' }}>{s.simulationSummary.elapsed_time_string}</td>
-                <td style={{ textAlign: 'left' }}>{s.simulationSummary.tickers.split('_').join(', ')}</td>
-                <td style={{ textAlign: 'left' }}>{this.formatDateTime(s.simulationSummary.start_time)}</td>
-                <td style={{ textAlign: 'left' }}>{this.formatDateTime(s.simulationSummary.stopped_time)}</td>
-                <td style={{ textAlign: 'left' }}>{this.formatDate(s.simulationSummary.created_at)}</td>
-            </tr>    
-        );
+        let simulation_summaries_table = <center>{'... Loading data ...'}</center>;
+        if (this.props.simulationSummaries) {
+
+            const simulation_table_rows = this.props.simulationSummaries.length === 0
+                ? <tr key={'empty'}><td colSpan="7"><center>{'... No previous simulations ...'}</center></td></tr>
+                : this.props.simulationSummaries.slice().reverse().map(s =>
+                    <tr key={s.simulationSummary.created_at}>
+                        <td style={{ textAlign: 'left', color: s.simulationSummary.win_loss_amount >= 0 ? this.state.upColor : this.state.downColor }}
+                        >{(s.simulationSummary.win_loss_amount >= 0 ? 'Gained' : 'Lost')
+                            + ' ' + this.formatDollarAmount(s.simulationSummary.win_loss_amount)}</td>
+                        <td style={{ textAlign: 'left' }}>{this.formatDollarAmount(s.simulationSummary.initial_cash)}</td>
+                        <td style={{ textAlign: 'left' }}>{s.simulationSummary.elapsed_time_string}</td>
+                        <td style={{ textAlign: 'left' }}>{s.simulationSummary.tickers.split('_').join(', ')}</td>
+                        <td style={{ textAlign: 'left' }}>{this.formatDateTime(s.simulationSummary.start_time)}</td>
+                        <td style={{ textAlign: 'left' }}>{this.formatDateTime(s.simulationSummary.stopped_time)}</td>
+                        <td style={{ textAlign: 'left' }}>{this.formatDate(s.simulationSummary.created_at)}</td>
+                    </tr>
+                );
+
+            simulation_summaries_table = <Table
+                id="simulation-summaries-table"
+                responsive="true"
+            >
+                <thead>
+                    <tr style={{ color: '#575660' }}>
+                        <th style={{ textAlign: 'left' }}>Outcome</th>
+                        <th style={{ textAlign: 'left' }}>Initial Cash</th>
+                        <th style={{ textAlign: 'left' }}>Elapsed Time</th>
+                        <th style={{ textAlign: 'left' }}>Tickers</th>
+                        <th style={{ textAlign: 'left' }}>Start Time</th>
+                        <th style={{ textAlign: 'left' }}>End Time</th>
+                        <th style={{ textAlign: 'left' }}>Date Created</th>
+                    </tr>
+                </thead>
+                <tbody
+                    style={{ color: '#91ABBD' }}
+                >
+                    {simulation_table_rows}
+                </tbody>
+            </Table>;
+
+        }
 
         return (
             <div>
@@ -126,27 +154,7 @@ class Homepage extends React.Component {
                         </Row>
                         <Row>
                             <center><h3>Past simulation results:</h3></center>
-                            <Table
-                                id="simulation-summaries-table"
-                                responsive="true"
-                            >
-                                <thead>
-                                    <tr style={{ color: '#575660' }}>
-                                    <th style={{ textAlign: 'left' }}>Outcome</th>
-                                    <th style={{ textAlign: 'left' }}>Initial Cash</th>
-                                    <th style={{ textAlign: 'left' }}>Elapsed Time</th>
-                                    <th style={{ textAlign: 'left' }}>Tickers</th>
-                                    <th style={{ textAlign: 'left' }}>Start Time</th>
-                                    <th style={{ textAlign: 'left' }}>End Time</th>
-                                    <th style={{ textAlign: 'left' }}>Date Created</th>
-                                    </tr>
-                                </thead>
-                                <tbody
-                                    style={{ color: '#91ABBD' }}
-                                >
-                                    {simulation_table_rows}
-                                </tbody>
-                            </Table>
+                            {simulation_summaries_table}
                         </Row>
                     </Col>
 
