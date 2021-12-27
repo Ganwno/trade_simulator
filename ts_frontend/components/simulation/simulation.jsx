@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 
+import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Col from 'react-bootstrap/Col';
@@ -46,12 +47,18 @@ class Simulation extends React.Component {
             downColor: '#dc3545', // red
             // trades
             tradeErrorMsg: '',
+            // tick errors
+            noTickDataCount: 0,
+            noTickDataMaxTries: 5,
+            showAlert: false,
         }
 
         // bind methods
         this.startSimulation = this.startSimulation.bind(this);
         this.pauseSimulation = this.pauseSimulation.bind(this);
         this.stopSimulation = this.stopSimulation.bind(this);
+        this.closeSimulation = this.closeSimulation.bind(this);
+        this.handleNoSimulationData = this.handleNoSimulationData.bind(this);
         this.requestTickUpdates = this.requestTickUpdates.bind(this);
         this.receiveTickUpdate = this.receiveTickUpdate.bind(this);
         this.handleSharesInput = this.handleSharesInput.bind(this);
@@ -82,29 +89,48 @@ class Simulation extends React.Component {
 
 
     stopSimulation() {
+        // Graceful exit from simulation page.
+        this.createSimulationSummary()
+            .then(() => this.closeSimulation());
+    }
+
+
+    handleNoSimulationData() {
+        this.setState({
+            simulationIsStopped: true,
+            showAlert: true
+        });
+    }
+
+    closeSimulation() {
+        // Clean up tick data from database and clear current simulation.
+        // Causes redirect to homepage.
         this.setState({
             simulationIsRunning: false,
             simulationIsStopped: true
         },
-        // Delete ticks from database and redirect to homepage
-        () => {
-            console.log('Stop simulation');
-            const simulation = {
-                id: this.props.simulation.id,
-                session_token: this.props.user.session_token
-            };
-            this.props.closeCurrentSimulation(simulation);
-
-            const simulationSummary = {
-                simulation_id: this.props.simulation.id,
-                session_token: this.props.user.session_token,
-                username: this.props.user.username,
-                final_cash: Math.round(this.state.account_value * 100) / 100,
-                stopped_time: this.state.simulation_time / 1000
-            }
-            this.props.createSimulationSummary(simulationSummary);
+            // Delete ticks from database and redirect to homepage
+            () => {
+                console.log('Stop simulation');
+                const simulation = {
+                    id: this.props.simulation.id,
+                    session_token: this.props.user.session_token
+                };
+                this.props.closeCurrentSimulation(simulation);
             }
         );
+    }
+
+
+    createSimulationSummary() {
+        const simulationSummary = {
+            simulation_id: this.props.simulation.id,
+            session_token: this.props.user.session_token,
+            username: this.props.user.username,
+            final_cash: Math.round(this.state.account_value * 100) / 100,
+            stopped_time: this.state.simulation_time / 1000
+        }
+        this.props.createSimulationSummary(simulationSummary);
     }
 
 
@@ -133,17 +159,31 @@ class Simulation extends React.Component {
 
     receiveTickUpdate(response) {
         // update simulation time, quotes and portfolio with data from new tick
+        if (this.state.simulationIsStopped) {
+            return;
+        }
 
         // handle errors
         if (response.errors && (response.errors === ["Requested tick after simulation end."])) {
             console.log('Simulation ended naturally');
             this.stopSimulation();
+            return;
         }
  
         if (!response.tick || !response.quotes) {
             console.log('Error receiving ticks');
             if (response.errors) { console.log(response.errors); }
-            this.pauseSimulation();
+
+            this.setState({
+                noTickDataCount: this.state.noTickDataCount + 1
+            },
+            () => {
+                this.pauseSimulation();
+                if (this.state.noTickDataCount >= this.state.noTickDataMaxTries) {
+                    this.handleNoSimulationData();
+                }
+            });
+            return;
         }
 
         // update time
@@ -173,7 +213,8 @@ class Simulation extends React.Component {
             account_value: newAccountValue,
             quote_times: this.state.quote_times.concat(newSimulationTime),
             account_values: this.state.account_values.concat(newAccountValue),
-            stock_prices: newStockPrices
+            stock_prices: newStockPrices,
+            noTickDataCount: 0
         });
     }
 
@@ -360,7 +401,7 @@ class Simulation extends React.Component {
 
     componentDidMount() {
 
-        if (!this.props.simulation) {
+        if (!this.props.simulation || this.state.simulationIsStopped) {
             return;
         }
 
@@ -371,7 +412,7 @@ class Simulation extends React.Component {
                 $.ajax({
                     url: '/api/tick',
                     method: 'GET',
-                    data: { tick: { simulation_id: this.props.simulation.id, timestamp: (this.state.simulation_time / 1000) + 1 } },
+                    data: { tick: { simulation_id: this.state.simulation_id, timestamp: (this.state.simulation_time / 1000) + 1 } },
                     success: (response) => {
                         // receive update in callback
                         this.receiveTickUpdate(response);
@@ -382,7 +423,7 @@ class Simulation extends React.Component {
 
         // poftfolio chart
 
-        const lineColor = this.state.account_value >= this.props.simulation.initial_cash ? '#198754' : '#dc3545';
+        const lineColor = this.state.account_value >= this.props.simulation.initial_cash ? this.state.upColor : this.state.downColor;
 
         const portfolioChartData = [
             {
@@ -504,6 +545,18 @@ class Simulation extends React.Component {
                 </Col>
                 </Row>
                 <Row>
+                <Alert
+                    variant="danger"
+                    dismissible="true"
+                    closeVariant="red"
+                    onClose={() => {this.closeSimulation();}}
+                    show={this.state.showAlert}
+                >
+                    <Alert.Heading>Simulation Failed</Alert.Heading>
+                    <hr/>
+                    <p>No data available for any of the tickers {this.state.stock_tickers.join(', ')} on the simulation date.<br/>
+                    These might be unsupported stocks or it might be a holiday.</p>
+                </Alert>
                 <Col> {/* Portfolio Chart */}
                     <div id="portfolio-chart"></div>
                     <Row>

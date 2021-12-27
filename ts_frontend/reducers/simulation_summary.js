@@ -13,7 +13,8 @@ export default (state = _nullSimulationSummary, action) => {
     switch (action.type) {
         case RECEIVE_SIMULATION_SUMMARY:
             return Object.assign({}, { currentSimulationSummary: action.simulationSummary.simulationSummary,
-                                        errors: action.simulationSummary.errors });
+                                        errors: action.simulationSummary.errors,
+                                        allSimulationSummaries: state.allSimulationSummaries });
 
         case RECEIVE_SIMULATION_SUMMARIES:
             return Object.assign({}, { allSimulationSummaries: action.simulation_summaries });

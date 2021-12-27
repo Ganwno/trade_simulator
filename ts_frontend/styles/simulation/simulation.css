@@ -29,6 +29,13 @@
     color: #91ABBD;
 }
 
+.btn-close {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+    opacity: 1;
+}
+
 #portfolio-table {
     color: #91ABBD;
     border-color: #575660;
