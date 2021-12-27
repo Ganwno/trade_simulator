@@ -47,7 +47,7 @@ def map_tickers_to_quotes(ticker_array)
     quotes = self.quote_set.split(@@quote_sep).map { |quote_str| quote_str.to_f }
     quote_dict = Hash.new()
     (0...ticker_array.length).each do |i|
-        quote_dict[ticker_array[i]] = quotes[i]
+        quote_dict[ticker_array[i]] = quotes[i] > 0 ? quotes[i] : nil
     end
     quote_dict
 end

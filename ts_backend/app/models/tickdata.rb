@@ -3,6 +3,7 @@ require 'distribution'
 
 class TickData
     @@finnhub_api_key = 'c50k1baad3ic9bdla5u0'
+    @@missing_data_placeholder = 'x'
 
     attr_reader :tickers, :start_time, :end_time, :tick_data
 
@@ -20,17 +21,24 @@ class TickData
 
         @tickers = raw_tick_data.keys
 
-        if @tickers.length == 0
+        i_start = 0
+        while raw_tick_data[@tickers[i_start]]['status'] == 'no_data'
+            i_start += 1
+        end
+
+        if (@tickers.length == 0) || (i_start == @tickers.length)
             raise StandardError.new 'No data returned by API for tickers ' + tickers.join(', ') + 
                 ' between ' + start_time.to_s + ' and ' + end_time.to_s + '.' 
         end
 
-        min_start_time  = raw_tick_data[@tickers[0]]['start_time']
-        max_end_time    = raw_tick_data[@tickers[0]]['end_time']
+        min_start_time  = raw_tick_data[@tickers[i_start]]['start_time']
+        max_end_time    = raw_tick_data[@tickers[i_start]]['end_time']
 
         @tickers.each do |ticker|
-            min_start_time  = [raw_tick_data[ticker]['start_time'], min_start_time].min
-            max_end_time    = [raw_tick_data[ticker]['end_time'], max_end_time].max
+            if raw_tick_data[ticker]['status'] == 'ok'
+                min_start_time  = [raw_tick_data[ticker]['start_time'], min_start_time].min
+                max_end_time    = [raw_tick_data[ticker]['end_time'], max_end_time].max
+            end
         end
 
         @start_time = min_start_time
@@ -53,10 +61,12 @@ class TickData
 
         if res[:s] == 'no_data'
             # handle no data
-            raise StandardError.new 'No data returned by API for for ticker ' + ticker +
-                ' between ' + start_time.to_s + ' and ' + end_time.to_s + '.' 
+            data = Hash.new()
+            data['status'] = 'no_data'
+            data
         else
             data = Hash.new()
+            data['status'] = 'ok'
             data['start_time'] = res[:t][0]
             data['end_time'] = res[:t][-1]
 
@@ -93,12 +103,12 @@ class TickData
         num_minutes = (end_time - start_time) / 60
 
         minute_start = start_time
-        last_quote = raw_tick_data[raw_tick_data['start_time']][:o]
+        last_quote = raw_tick_data['status'] == 'ok' ? raw_tick_data[raw_tick_data['start_time']][:o] : @@missing_data_placeholder
 
         (0...num_minutes).each do |i|
             generate = false
 
-            if raw_tick_data[minute_start]
+            if (raw_tick_data['status'] == 'ok') && (raw_tick_data[minute_start])
                 # generate ticks for this name and add to quotes array
                 generate = true
 
@@ -156,7 +166,7 @@ class TickData
         
         # append last close
         timestamp = end_time
-        quote = raw_tick_data[raw_tick_data['end_time']][:c]
+        quote = raw_tick_data['status'] == 'ok' ? raw_tick_data[raw_tick_data['end_time']][:c] : @@missing_data_placeholder
 
         if generated_ticks[timestamp] && generated_ticks[timestamp].kind_of?(Array)
             generated_ticks[timestamp].append(quote)

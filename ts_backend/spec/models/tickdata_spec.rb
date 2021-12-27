@@ -18,4 +18,20 @@ RSpec.describe TickData do
         expect(t.tick_data[start_time + 1]).to  eq([303.0009701288065, 147.47820266811397])
         expect(t.tick_data[end_time - 1]).to    eq([300.45325467234494, 146.23161537848628])
     end
+
+    it 'handles no_data as nil' do
+        start_time = 1640269800 # Thu Dec 23 2021 09:30:00 GMT-0500 (Eastern Standard Time)
+        end_time = 1640269860 # Thu Dec 23 2021 09:31:00 GMT-0500 (Eastern Standard Time)
+        t = TickData.new(['LAAA', 'MSFT'], start_time, end_time)
+        
+        expect(t.tickers).to eq(['LAAA', 'MSFT'])
+        expect(t.start_time).to eq(start_time)
+        expect(t.end_time).to eq(end_time + 60)
+        expect(t.tick_data).to include(start_time)
+        expect(t.tick_data).to include(end_time)
+        expect(t.tick_data.length).to eq(60 * 2 + 1)
+        expect(t.tick_data[start_time]).to eq(['x', 332.91])
+        expect(t.tick_data[end_time]).to eq(['x', 333.35])
+    end
+
 end

@@ -90,8 +90,8 @@ class Simulation extends React.Component {
 
     stopSimulation() {
         // Graceful exit from simulation page.
-        this.createSimulationSummary()
-            .then(() => this.closeSimulation());
+        this.createSimulationSummary();
+        this.closeSimulation();
     }
 
 
