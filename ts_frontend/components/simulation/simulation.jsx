@@ -496,6 +496,8 @@ class Simulation extends React.Component {
             return <Redirect to="/homepage" />;
         }
 
+        const simulation_dateStr = new Date(this.state.simulation_time).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
         // portfolio table rows
         const portfolio_table_rows = this.state.portfolio_tickers.map(t => 
             <tr key={t}>
@@ -537,7 +539,7 @@ class Simulation extends React.Component {
                 </Col>
                 <Col>
                 <Row>
-                    Simulation date: {new Date(this.state.simulation_time).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                    Simulation date: {simulation_dateStr}
                 </Row>
                 <Row className="time-row">
                             Time: {new Date(Math.max(this.state.simulation_time, this.props.simulation.start_time * 1000)).toLocaleTimeString()}
@@ -555,7 +557,7 @@ class Simulation extends React.Component {
                     <Alert.Heading>Simulation Failed</Alert.Heading>
                     <hr/>
                     <p>No data available for any of the tickers {this.state.stock_tickers.join(', ')} on the simulation date.<br/>
-                    These might be unsupported stocks or it might be a holiday.</p>
+                    These stocks might no longer be tradeable or {simulation_dateStr} might be a stock market holiday.</p>
                 </Alert>
                 <Col> {/* Portfolio Chart */}
                     <div id="portfolio-chart"></div>

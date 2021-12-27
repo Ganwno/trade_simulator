@@ -29,7 +29,7 @@
     color: #91ABBD;
 }
 
-.btn-close {
+.btn-close.btn-close-red {
     color: #842029;
     background-color: #f8d7da;
     border-color: #f5c2c7;
