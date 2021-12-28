@@ -2,7 +2,7 @@ require 'finnhub_ruby'
 require 'distribution'
 
 class TickData
-    @@finnhub_api_key = 'c50k1baad3ic9bdla5u0'
+    @@finnhub_api_key = Rails.application.credentials.finnhub_api_key
     @@missing_data_placeholder = 'x'
 
     attr_reader :tickers, :start_time, :end_time, :tick_data
