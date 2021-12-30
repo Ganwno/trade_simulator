@@ -34,7 +34,7 @@ class Homepage extends React.Component {
         this.setState({ createdSimulation: createdSimulation });
     }
 
-    getTickers = async (route) => {
+    async getTickers(route) {
         fetch(route)
             .then(response => response.text())
             .then(text => text.split('\n').map(t => Object({name: t})))
