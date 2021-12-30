@@ -1,0 +1,58 @@
+
+#button-start {
+    background-color: #198754;
+    color: black;
+}
+
+#button-pause {
+    background-color: #ffc107;
+    color: black;
+}
+
+#button-stop {
+    background-color: #dc3545;
+    color: black;
+}
+
+
+.container {
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    width: 100%;
+    max-width: none;
+}
+
+.time-row {
+    font-size: 25px;
+    color: #91ABBD;
+}
+
+.btn-close.btn-close-red {
+    color: #842029;
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+    opacity: 1;
+}
+
+#portfolio-table {
+    color: #91ABBD;
+    border-color: #575660;
+}
+
+.quote-display-container {
+    background-color: #091030;
+    border-color: #004770;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10px;
+
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#shares-input {
+    max-width: 80px;
+}

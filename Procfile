@@ -1,1 +1,1 @@
-web: cd ts_backend && rails server
+web: rails server

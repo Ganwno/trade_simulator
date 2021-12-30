@@ -1,0 +1,1 @@
+json.partial! partial: 'api/simulation_summary/simulation_summary', collection: @simulation_summaries, as: :simulationSummary

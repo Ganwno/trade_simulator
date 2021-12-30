@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trade Simulator</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+
+  <% if current_user %>
+    <script>
+      window.currentUser = <%= render("api/users/user.json.jbuilder", user: current_user).html_safe %>;
+      window.currentSimulation = <%= render("api/simulations/simulation.json.jbuilder", simulation: current_simulation).html_safe %>;
+    </script>
+
+    <script src="https://cdn.plot.ly/plotly-2.6.3.min.js"></script>
+  <% end %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
