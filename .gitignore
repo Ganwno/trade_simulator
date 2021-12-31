@@ -11,6 +11,9 @@ tmp/
 # secret keys
 master.key
 
+# public assets directory
+public/assets/
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

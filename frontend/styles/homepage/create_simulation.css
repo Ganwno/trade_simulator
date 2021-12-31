@@ -56,3 +56,8 @@
     color: #DB4F60;
     max-width: max-content;
 }
+
+/* Fix Chrome-only issue with year color in datetime selector. */
+input[type="datetime-local"]::-webkit-datetime-edit-year-field {
+    color: #212529;
+}
