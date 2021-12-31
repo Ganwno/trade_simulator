@@ -550,7 +550,6 @@ class Simulation extends React.Component {
                 <Alert
                     variant="danger"
                     dismissible="true"
-                    closeVariant="red"
                     onClose={() => {this.closeSimulation();}}
                     show={this.state.showAlert}
                 >
