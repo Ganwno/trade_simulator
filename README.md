@@ -41,8 +41,9 @@ When a simulation ends a summary is created with the gain/loss amount, total tim
 <a id="teck_stack"></a>
 ## 3. Tech Stack
 
-![Ruby](icons/ruby.svg) Ruby, Rspec,
-![Ruby on Rails](icons/rubyonrails.svg) Rails, 
+![Ruby](icons/ruby.svg) Ruby,
+![Ruby on Rails](icons/rubyonrails.svg) Rails,
+<img src="icons/rspec.png" height="30px" width="30px"> Rspec,
 ![PostgreSQL](icons/postgresql.svg) PostgreSQL,
 ![JavaScript](icons/javascript.svg) JavaScript,
 ![Redux](icons/redux.svg) Redux,
@@ -102,7 +103,7 @@ From root directory run:
 <a id="credits"></a>
 ## 5. Credits
 
-This is my first full-stack web app project. The code was written from scratch following the lectures and guides in [App Academy Open](https://www.appacademy.io/course/app-academy-open). Many thanks to the developers of these third-party modules and components that are used in Trade Simulator:
+This is my first full-stack web app project. The code was written from scratch following the lectures and guides in [App Academy Open](https://www.appacademy.io/course/app-academy-open). Many thanks to the developers for writing these modules and components used in Trade Simulator so I didn't have to:
 
 - [Finnhub-ruby](https://github.com/Finnhub-Stock-API/finnhub-ruby)
 - [React-fuzzy](https://www.npmjs.com/package/react-fuzzy)
