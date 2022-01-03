@@ -12,6 +12,7 @@ Trade Simulator is a web app that creates the experience of day-trading stocks w
 	- [Run Tests](#run_tests)
 5. [Credits](#credits)
 6. [Author](#author)
+7. [License](#license)
 
 <a id="overview"></a>
 ## 1. Overview
@@ -114,3 +115,28 @@ This is my first full-stack web app project. The code was written from scratch f
 ## 6. Author
 
 Shuhan (Hannah) Liu, [shhan.liu@gmail.com](mailto:shhan.liu@gmail.com)
+
+<a id="license"></a>
+## 7. License
+
+MIT License
+
+Copyright (c) 2022 Shuhan Liu
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
