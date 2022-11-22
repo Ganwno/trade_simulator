@@ -26,6 +26,7 @@ gem 'jbuilder', '~> 2.5'
 gem 'bcrypt', '~> 3.1.7'
 
 gem 'jquery-rails'
+gem 'prime'
 
 # Finance data API gems
 gem 'finnhub_ruby', '~> 1.1.8'
