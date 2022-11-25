@@ -19,6 +19,8 @@ services:
         value: enabled
       - key: RAILS_SERVE_STATIC_FILES # Imported from Heroku app
         value: enabled
+      - key: RAILS_MASTER_KEY
+        sync: false 
       # - key: DATABASE_URL # Render PostgreSQL database
       #   fromDatabase:
       #     name: postgresql-symmetrical-26306
