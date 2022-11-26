@@ -36,7 +36,7 @@ class Api::TicksController < ApplicationController
             render json: {tick: nil, quotes: nil, errors: errors}
         else
             # map simulation tickers to tick quotes
-            @tick.errors.messages[:timestamp].concat(errors);
+            # @tick.errors.messages.concat(errors);
             quotes = @tick.map_tickers_to_quotes(simulation.security_set.split('_'))
             render partial: 'api/ticks/tick', locals: {tick: @tick, quotes: quotes}
         end
