@@ -9,18 +9,7 @@ services:
     plan: free # optional; defaults to starter
     numInstances: 1
     envVars:
-      - key: LANG # Imported from Heroku app
-        value: en_US.UTF-8
-      - key: RACK_ENV # Imported from Heroku app
-        value: production
-      - key: RAILS_ENV # Imported from Heroku app
-        value: production
-      - key: RAILS_LOG_TO_STDOUT # Imported from Heroku app
-        value: enabled
-      - key: RAILS_SERVE_STATIC_FILES # Imported from Heroku app
-        value: enabled
-      - key: RAILS_MASTER_KEY
-        sync: true
+      - fromGroup: trade-simulator-config-group
       # - key: DATABASE_URL # Render PostgreSQL database
       #   fromDatabase:
       #     name: postgresql-symmetrical-26306
