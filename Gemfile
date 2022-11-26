@@ -28,6 +28,10 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'jquery-rails'
 gem 'prime'
 
+gem 'net-smtp', require: false
+gem 'net-imap', require: false
+gem 'net-pop', require: false
+
 # Finance data API gems
 gem 'finnhub_ruby', '~> 1.1.8'
 gem 'distribution', '~> 0.8.0'
